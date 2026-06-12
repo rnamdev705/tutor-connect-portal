@@ -1,18 +1,12 @@
-"use client";
-
-import { InputHTMLAttributes, ReactNode, forwardRef, useState } from "react";
+import { InputHTMLAttributes, ReactNode, forwardRef } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui/Icon";
-
-const inputStyles =
-  "w-full border border-outline-variant bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/30 transition-all outline-none disabled:opacity-60";
-
-const variantStyles = {
-  default: "h-12 px-6 rounded-lg form-input-focus",
-  auth: "py-3 bg-surface-container-lowest rounded-xl input-focus-ring",
-} as const;
-
-export type InputVariant = keyof typeof variantStyles;
+import {
+  baseInputStyles,
+  getInputPadding,
+  inputVariantStyles,
+  type InputVariant,
+} from "./inputStyles";
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   variant?: InputVariant;
@@ -34,13 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
-    const [showPassword, setShowPassword] = useState(false);
-    const isPassword = type === "password";
-    const resolvedType = isPassword && showPassword ? "text" : type;
-
-    const paddingLeft = leftIcon ? "pl-12" : variant === "auth" ? "pl-4" : "px-6";
-    const paddingRight =
-      isPassword || rightElement ? "pr-12" : variant === "auth" ? "pr-4" : "px-6";
+    const hasRightSlot = Boolean(rightElement);
 
     return (
       <div className={cn("relative", className)}>
@@ -52,22 +40,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <input
           ref={ref}
-          type={resolvedType}
-          className={cn(inputStyles, variantStyles[variant], paddingLeft, paddingRight, inputClassName)}
+          type={type}
+          className={cn(
+            baseInputStyles,
+            inputVariantStyles[variant],
+            getInputPadding({ leftIcon, hasRightSlot }),
+            inputClassName,
+          )}
           {...props}
         />
-        {isPassword && (
-          <button
-            type="button"
-            tabIndex={-1}
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            <Icon name={showPassword ? "visibility_off" : "visibility"} size={20} />
-          </button>
-        )}
-        {!isPassword && rightElement && (
+        {rightElement && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">{rightElement}</div>
         )}
       </div>

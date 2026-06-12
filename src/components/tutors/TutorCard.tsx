@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge, Button, Card, Icon, Tag, buttonClassName } from "@/components/ui";
+import { ROUTES } from "@/lib/constants";
 import type { Tutor } from "@/lib/data";
 
 export function TutorCard({ tutor }: { tutor: Tutor }) {
@@ -55,7 +56,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
       </div>
       <div className="mt-10 flex gap-3 border-t border-outline-variant pt-6">
         <Link
-          href={`/tutors/${tutor.id}`}
+          href={ROUTES.tutor(tutor.id)}
           className={buttonClassName({ variant: "primary", uppercase: true, className: "grow" })}
         >
           View Profile

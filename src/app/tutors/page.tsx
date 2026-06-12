@@ -1,7 +1,14 @@
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { TutorCard } from "@/components/tutors/TutorCard";
-import { Button, Card, Field, Icon, Input, Select } from "@/components/ui";
+import { Button, Card, Checkbox, Field, Input, Select } from "@/components/ui";
+import { BRAND_NAME } from "@/lib/constants";
 import { tutors } from "@/lib/data";
+import { createPageMetadata } from "@/lib/metadata";
+
+export const metadata = createPageMetadata(
+  "Tutor Directory",
+  "Browse verified tutors by subject, level, and availability",
+);
 
 export default function TutorsPage() {
   return (
@@ -18,7 +25,7 @@ export default function TutorsPage() {
             </div>
             <div className="space-y-10">
               <Field label="Keyword" htmlFor="keyword">
-                <Input id="keyword" placeholder="e.g. Calculus" className="[&_input]:h-9 [&_input]:text-body-sm" />
+                <Input id="keyword" placeholder="e.g. Calculus" inputClassName="h-9 text-body-sm" />
               </Field>
               <Field label="Subject" htmlFor="subject">
                 <Select id="subject" className="h-9 text-body-sm">
@@ -30,15 +37,17 @@ export default function TutorsPage() {
               </Field>
               <Field label="Academic Level">
                 <div className="space-y-2">
-                  {["Primary", "Secondary", "Tertiary / University"].map((level, i) => (
-                    <label key={level} className="flex items-center gap-1 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        defaultChecked={i === 1}
-                        className="rounded text-secondary focus:ring-secondary"
-                      />
-                      <span className="text-body-sm text-on-surface">{level}</span>
-                    </label>
+                  {[
+                    { id: "level-primary", label: "Primary" },
+                    { id: "level-secondary", label: "Secondary", defaultChecked: true },
+                    { id: "level-tertiary", label: "Tertiary / University" },
+                  ].map((level) => (
+                    <Checkbox
+                      key={level.id}
+                      id={level.id}
+                      label={level.label}
+                      defaultChecked={level.defaultChecked}
+                    />
                   ))}
                 </div>
               </Field>
@@ -47,7 +56,7 @@ export default function TutorsPage() {
                   id="location"
                   leftIcon="location_on"
                   placeholder="Postal Code or City"
-                  className="[&_input]:h-9 [&_input]:text-body-sm [&_input]:bg-surface-container-low"
+                  inputClassName="h-9 text-body-sm bg-surface-container-low"
                 />
               </Field>
             </div>
@@ -79,9 +88,9 @@ export default function TutorsPage() {
       <footer className="bg-surface-container-highest border-t border-outline-variant mt-16">
         <div className="w-full py-10 px-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0">
-            <span className="text-headline-sm text-primary">EduMatch</span>
+            <span className="text-headline-sm text-primary">{BRAND_NAME}</span>
             <p className="text-body-sm text-on-surface-variant mt-1">
-              © 2024 EduMatch. Encrypted &amp; Secure.
+              © 2024 {BRAND_NAME}. Encrypted &amp; Secure.
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-6">

@@ -14,6 +14,7 @@ export type SegmentedControlProps<T extends string> = {
   shape?: "pill" | "rounded";
   activeVariant?: "secondary" | "secondary-container";
   className?: string;
+  name?: string;
 };
 
 export function SegmentedControl<T extends string>({
@@ -23,6 +24,7 @@ export function SegmentedControl<T extends string>({
   shape = "pill",
   activeVariant = "secondary",
   className,
+  name = "segmented-control",
 }: SegmentedControlProps<T>) {
   const activeStyles =
     activeVariant === "secondary"
@@ -36,25 +38,35 @@ export function SegmentedControl<T extends string>({
         shape === "pill" ? "rounded-full" : "rounded-xl gap-2",
         className,
       )}
-      role="tablist"
+      role="radiogroup"
     >
       {options.map((option) => {
         const isActive = value === option.value;
+        const inputId = `${name}-${option.value}`;
+
         return (
-          <button
+          <label
             key={option.value}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onChange(option.value)}
+            htmlFor={inputId}
             className={cn(
-              "flex-1 py-2 px-6 text-label-md transition-all",
+              "flex-1 py-2 px-6 text-label-md transition-all text-center cursor-pointer",
               shape === "pill" ? "rounded-full" : "rounded-lg",
-              isActive ? activeStyles : "text-on-surface-variant hover:text-primary hover:bg-surface-variant",
+              isActive
+                ? activeStyles
+                : "text-on-surface-variant hover:text-primary hover:bg-surface-variant",
             )}
           >
+            <input
+              id={inputId}
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={isActive}
+              onChange={() => onChange(option.value)}
+              className="sr-only"
+            />
             {option.label}
-          </button>
+          </label>
         );
       })}
     </div>

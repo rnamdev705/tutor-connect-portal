@@ -10,25 +10,20 @@ import {
   Field,
   Icon,
   Input,
+  PasswordInput,
   SegmentedControl,
   TextLink,
 } from "@/components/ui";
 import { AuthBrandingSidebar } from "./AuthBrandingSidebar";
-
-type Role = "parent" | "tutor";
-
-const roleOptions = [
-  { value: "parent" as const, label: "Parent" },
-  { value: "tutor" as const, label: "Tutor" },
-];
+import { BRAND_NAME, OAUTH_GOOGLE_ICON, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
 
 export function LoginForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("parent");
+  const [role, setRole] = useState<AuthRole>("parent");
 
-  function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    router.push("/dashboard");
+    router.push(ROUTES.dashboard);
   }
 
   return (
@@ -39,7 +34,7 @@ export function LoginForm() {
           <div className="max-w-md mx-auto w-full">
             <div className="flex items-center gap-2 mb-10 md:hidden">
               <Icon name="school" className="text-secondary text-3xl" />
-              <h1 className="text-headline-sm font-bold text-primary">EduMatch</h1>
+              <h1 className="text-headline-sm font-bold text-primary">{BRAND_NAME}</h1>
             </div>
             <div className="mb-10">
               <h2 className="text-headline-lg text-on-surface mb-1">Welcome back</h2>
@@ -48,19 +43,21 @@ export function LoginForm() {
               </p>
             </div>
             <SegmentedControl
-              options={roleOptions}
+              name="login-role"
+              options={ROLE_OPTIONS}
               value={role}
               onChange={setRole}
               shape="pill"
               className="mb-10"
             />
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <Field label="Email Address" htmlFor="email" labelUppercase labelSize="sm">
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   variant="auth"
                   leftIcon="mail"
                   placeholder={role === "parent" ? "sarah@example.com" : "dr.smith@edumatch.edu"}
@@ -72,16 +69,14 @@ export function LoginForm() {
                 labelUppercase
                 labelSize="sm"
                 action={
-                  <a className="text-label-sm text-secondary hover:underline" href="#">
-                    Forgot password?
-                  </a>
+                  <span className="text-label-sm text-secondary">Forgot password?</span>
                 }
               >
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   required
+                  autoComplete="current-password"
                   variant="auth"
                   leftIcon="lock"
                   placeholder="••••••••"
@@ -96,16 +91,11 @@ export function LoginForm() {
             <div className="mt-10">
               <Divider label="Or continue with" className="mb-10" />
               <div className="grid grid-cols-2 gap-6">
-                <Button variant="outline-neutral" shape="xl" fullWidth>
-                  <Image
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6GyKwKvkkjtuPpVMX6HeTWEf6fAmyuMEJNATfFfFAFuKQ58WNblXELmJwwJxFIINbHwzB5l-7-cSbP_lQrlHD3zjpcUDVSRnV2dK3ndFRqwpUBmuGVFQR6pQcOX74ayH9NlFl7Zqsi3--Dzi3RJzUsGJfZ3xbYEcbEs5JBdZ8qbCsGr_n6ZW8flmRxld6AVPc18EcyzlCvbS88ZCK7_kl_M8rwRB-XiozDKyFF59C1BrtD3UO7nLFh-vBH-nOSixXfLsaoGZoJxo"
-                    alt="Google"
-                    width={20}
-                    height={20}
-                  />
+                <Button type="button" variant="outline-neutral" shape="xl" fullWidth disabled>
+                  <Image src={OAUTH_GOOGLE_ICON} alt="" width={20} height={20} />
                   Google
                 </Button>
-                <Button variant="outline-neutral" shape="xl" fullWidth>
+                <Button type="button" variant="outline-neutral" shape="xl" fullWidth disabled>
                   <Icon name="apps" className="text-primary" />
                   Apple
                 </Button>
@@ -113,7 +103,7 @@ export function LoginForm() {
             </div>
             <p className="mt-16 text-center text-body-sm text-on-surface-variant">
               Don&apos;t have an account?{" "}
-              <TextLink href="/register">Create an EduMatch account</TextLink>
+              <TextLink href={ROUTES.register}>Create a {BRAND_NAME} account</TextLink>
             </p>
           </div>
         </section>

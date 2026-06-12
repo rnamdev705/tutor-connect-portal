@@ -10,8 +10,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Open: Story = { args: { children: "Open", variant: "open" } };
-export const Matched: Story = { args: { children: "Matched", variant: "matched" } };
+export const Open: Story = { args: { children: "Open", status: "Open" } };
+export const Matched: Story = { args: { children: "Matched", status: "Matched" } };
 export const Verified: Story = {
   args: { children: "Verified", variant: "verified", icon: "verified", filledIcon: true },
 };

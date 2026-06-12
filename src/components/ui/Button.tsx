@@ -58,7 +58,7 @@ export function buttonClassName({
     sizeStyles[size],
     shapeStyles[shape],
     fullWidth && "w-full",
-    uppercase && "uppercase tracking-widest",
+    uppercase && "uppercase tracking-widest [&_.material-symbols-outlined]:normal-case",
     className,
   );
 }

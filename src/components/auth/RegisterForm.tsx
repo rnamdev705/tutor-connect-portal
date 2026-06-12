@@ -8,30 +8,32 @@ import {
   Field,
   Icon,
   Input,
+  PasswordInput,
   SegmentedControl,
   TextLink,
 } from "@/components/ui";
 import { RegisterBrandingPanel } from "./RegisterBrandingPanel";
-
-type Role = "parent" | "tutor";
-
-const roleOptions = [
-  { value: "parent" as const, label: "Parent" },
-  { value: "tutor" as const, label: "Tutor" },
-];
+import { BRAND_NAME, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
 
 export function RegisterForm() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>("parent");
-  const [submitting, setSubmitting] = useState(false);
+  const [role, setRole] = useState<AuthRole>("parent");
+  const [passwordError, setPasswordError] = useState<string | undefined>();
 
-  function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      router.push("/dashboard");
-    }, 800);
+    const form = e.currentTarget;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem("confirm_password") as HTMLInputElement)
+      .value;
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+
+    setPasswordError(undefined);
+    router.push(ROUTES.dashboard);
   }
 
   return (
@@ -40,7 +42,7 @@ export function RegisterForm() {
       <main className="w-full lg:w-1/2 bg-surface flex flex-col justify-center items-center p-6 lg:p-16 overflow-y-auto">
         <div className="w-full max-w-[480px]">
           <div className="lg:hidden mb-10">
-            <h1 className="text-headline-md text-primary font-bold">EduMatch</h1>
+            <h1 className="text-headline-md text-primary font-bold">{BRAND_NAME}</h1>
           </div>
           <header className="mb-10">
             <h2 className="text-headline-lg text-on-surface mb-1">Create Account</h2>
@@ -49,60 +51,69 @@ export function RegisterForm() {
             </p>
           </header>
           <SegmentedControl
-            options={roleOptions}
+            name="register-role"
+            options={ROLE_OPTIONS}
             value={role}
             onChange={setRole}
             shape="rounded"
             activeVariant="secondary-container"
             className="mb-10"
           />
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <Field label="Full Name" htmlFor="full_name">
-              <Input id="full_name" required type="text" placeholder="Enter your full name" />
+              <Input
+                id="full_name"
+                name="full_name"
+                required
+                autoComplete="name"
+                type="text"
+                placeholder="Enter your full name"
+              />
             </Field>
             <Field label="Email Address" htmlFor="email">
-              <Input id="email" required type="email" placeholder="name@example.com" />
+              <Input
+                id="email"
+                name="email"
+                required
+                autoComplete="email"
+                type="email"
+                placeholder="name@example.com"
+              />
             </Field>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field label="Password" htmlFor="password">
-                <Input id="password" required type="password" placeholder="••••••••" />
+              <Field label="Password" htmlFor="password" error={passwordError}>
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  required
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                />
               </Field>
               <Field label="Confirm Password" htmlFor="confirm_password">
-                <Input id="confirm_password" required type="password" placeholder="••••••••" />
+                <PasswordInput
+                  id="confirm_password"
+                  name="confirm_password"
+                  required
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                />
               </Field>
             </div>
             <Checkbox
               id="terms"
+              name="terms"
               required
               labelClassName="leading-relaxed"
-              label={
-                <>
-                  I agree to the{" "}
-                  <a className="text-secondary font-bold hover:underline" href="#">
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a className="text-secondary font-bold hover:underline" href="#">
-                    Privacy Policy
-                  </a>
-                  .
-                </>
-              }
+              label="I agree to the Terms of Service and Privacy Policy."
             />
-            <Button
-              type="submit"
-              variant="secondary"
-              size="lg"
-              fullWidth
-              uppercase
-              disabled={submitting}
-            >
-              {submitting ? "Creating Account..." : "Create Account"}
+            <Button type="submit" variant="secondary" size="lg" fullWidth uppercase>
+              Create Account
             </Button>
           </form>
           <footer className="mt-16 text-center space-y-6">
             <p className="text-body-md text-on-surface-variant">
-              Already have an account? <TextLink href="/login">Sign In</TextLink>
+              Already have an account? <TextLink href={ROUTES.login}>Sign In</TextLink>
             </p>
             <div className="pt-10 border-t border-outline-variant flex items-center justify-center gap-3 opacity-60">
               <Icon name="verified" size={18} />

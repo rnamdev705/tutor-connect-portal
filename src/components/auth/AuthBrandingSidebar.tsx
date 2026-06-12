@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import { BRAND_NAME } from "@/lib/constants";
 
 const features = [
   { icon: "verified_user", label: "Identity-Verified Tutors" },
@@ -28,7 +29,7 @@ export function AuthBrandingSidebar() {
       <div className="z-10">
         <div className="flex items-center gap-2 mb-16">
           <Icon name="school" className="text-secondary-fixed text-4xl" />
-          <h1 className="text-headline-md font-bold tracking-tight">EduMatch</h1>
+          <h1 className="text-headline-md font-bold tracking-tight">{BRAND_NAME}</h1>
         </div>
         <h2 className="text-display-lg mb-6 leading-tight">Empowering academic excellence.</h2>
         <p className="text-body-lg text-on-primary-container max-w-sm mb-10">

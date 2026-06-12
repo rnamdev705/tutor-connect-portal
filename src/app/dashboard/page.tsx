@@ -1,21 +1,17 @@
-import Link from "next/link";
+import { CaseListItem } from "@/components/dashboard/CaseListItem";
 import { PortalSidebar } from "@/components/layout/PortalSidebar";
-import { Badge, Button, Card, Icon, Input, Select } from "@/components/ui";
-import { cases } from "@/lib/data";
+import { Button, Card, Icon, Input, Select } from "@/components/ui";
+import { cases, getDashboardStats } from "@/lib/data";
+import { createPageMetadata } from "@/lib/metadata";
 
-const stats = [
-  { icon: "pending_actions", value: "04", label: "Active Cases" },
-  { icon: "person_search", value: "12", label: "Invited Tutors" },
-  { icon: "verified_user", value: "02", label: "Pending Documents" },
-];
-
-const statusVariant = {
-  Open: "open",
-  Matched: "matched",
-  Closed: "closed",
-} as const;
+export const metadata = createPageMetadata(
+  "Parent Dashboard",
+  "Manage tuition requests and track tutor responses",
+);
 
 export default function DashboardPage() {
+  const stats = getDashboardStats();
+
   return (
     <div className="bg-background text-on-background min-h-screen flex">
       <PortalSidebar active="dashboard" />
@@ -51,18 +47,20 @@ export default function DashboardPage() {
             <div className="relative w-full lg:flex-1">
               <Icon
                 name="search"
-                className="absolute left-6 top-1/2 -translate-y-1/2 text-outline"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
               />
               <Input
-                className="[&_input]:pl-16 [&_input]:border-none [&_input]:bg-surface-container-low [&_input]:rounded-lg [&_input]:h-10"
+                aria-label="Search by case title"
+                inputClassName="pl-12 border-none bg-surface-container-low rounded-lg h-10"
                 placeholder="Search by case title..."
-                type="text"
+                type="search"
               />
             </div>
             <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
               {["Subject: All", "Level: All", "Status: All"].map((opt) => (
                 <Select
                   key={opt}
+                  aria-label={opt}
                   className="border-none bg-surface-container-low rounded-lg h-10"
                 >
                   <option>{opt}</option>
@@ -72,58 +70,11 @@ export default function DashboardPage() {
           </Card>
         </section>
         <section className="space-y-6 mb-16">
-          {cases.map((c) => (
-            <Link
-              key={c.id}
-              href={`/cases/${c.id}`}
-              className={c.closed ? "opacity-70 block" : "block"}
-            >
-              <Card
-                variant="glass"
-                accent={`${c.accent} group-hover:bg-secondary`}
-                padding="lg"
-                className="hover:border-secondary transition-colors group"
-              >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <Badge variant={statusVariant[c.status]}>{c.status}</Badge>
-                      <span className="text-label-sm text-outline">ID: {c.caseId}</span>
-                    </div>
-                    <h3 className="text-headline-sm text-on-surface">{c.title}</h3>
-                    <div className="flex flex-wrap items-center gap-6 text-on-surface-variant">
-                      <div className="flex items-center gap-1">
-                        <Icon name="school" size={18} />
-                        <span className="text-body-sm">{c.level}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon name="book" size={18} />
-                        <span className="text-body-sm">{c.subject}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon name="location_on" size={18} />
-                        <span className="text-body-sm">{c.location}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1">
-                    <p className="text-headline-sm text-primary">{c.rate}</p>
-                    {!c.closed ? (
-                      <Button variant="ghost" size="icon" shape="pill">
-                        <Icon name="more_vert" />
-                      </Button>
-                    ) : (
-                      <span className="p-3 text-outline rounded-full">
-                        <Icon name="lock" />
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            </Link>
+          {cases.map((caseItem) => (
+            <CaseListItem key={caseItem.id} caseItem={caseItem} />
           ))}
         </section>
-        <nav className="flex items-center justify-between py-6">
+        <nav className="flex items-center justify-between py-6" aria-label="Pagination">
           <Button variant="ghost" className="text-label-md">
             <Icon name="arrow_back" />
             Previous

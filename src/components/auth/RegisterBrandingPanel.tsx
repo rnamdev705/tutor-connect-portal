@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import { BRAND_NAME } from "@/lib/constants";
 
 const pillars = [
   {
@@ -36,7 +37,7 @@ export function RegisterBrandingPanel() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-surface-dim rounded-full blur-[100px]" />
       </div>
       <div className="relative z-10">
-        <h1 className="text-display-lg text-surface-bright tracking-tight mb-1">EduMatch</h1>
+        <h1 className="text-display-lg text-surface-bright tracking-tight mb-1">{BRAND_NAME}</h1>
         <p className="text-body-lg text-on-primary-container max-w-md">
           Bridging the gap between academic potential and professional expertise through a secure,
           curated marketplace.

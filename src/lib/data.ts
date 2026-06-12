@@ -1,3 +1,5 @@
+import { DEFAULT_USER_AVATAR } from "./constants";
+
 export type Tutor = {
   id: string;
   name: string;
@@ -12,12 +14,17 @@ export type Tutor = {
   location?: string;
   degree?: string;
   bio?: string;
+  credentials?: { icon: string; title: string; meta: string }[];
+  languages?: string[];
+  quickDetails?: { label: string; value: string }[];
 };
+
+export type CaseStatus = "Open" | "Matched" | "Closed";
 
 export type CaseItem = {
   id: string;
   title: string;
-  status: "Open" | "Matched" | "Closed";
+  status: CaseStatus;
   caseId: string;
   level: string;
   subject: string;
@@ -25,6 +32,36 @@ export type CaseItem = {
   rate: string;
   accent: string;
   closed?: boolean;
+};
+
+export type CaseDocument = {
+  id: string;
+  name: string;
+  icon: string;
+  size: string;
+  uploader: string;
+  initials?: string;
+  image?: string;
+};
+
+export type InvitedTutor = {
+  id: string;
+  name: string;
+  status: "MATCHED" | "Pending" | "Declined";
+  subtitle: string;
+  image: string;
+  active?: boolean;
+  grayscale?: boolean;
+};
+
+export type CaseDetail = CaseItem & {
+  createdAgo: string;
+  subjectLevel: string;
+  budgetRange: string;
+  schedule: string;
+  requirementNotes: string;
+  documents: CaseDocument[];
+  invitedTutors: InvitedTutor[];
 };
 
 export const tutors: Tutor[] = [
@@ -43,6 +80,18 @@ export const tutors: Tutor[] = [
     location: "London, UK (Remote Available)",
     degree: "PHD IN MATHEMATICS",
     bio: "With a doctorate from Imperial College London, I have spent the last decade bridging the gap between theoretical mathematics and practical student achievement.",
+    languages: ["English (Native)", "French (Professional)"],
+    credentials: [
+      { icon: "description", title: "Imperial College PhD Certificate", meta: "Verified on Sep 12, 2023" },
+      { icon: "verified_user", title: "Enhanced DBS Check", meta: "Valid until Oct 2025" },
+      { icon: "workspace_premium", title: "Higher Education Teaching Cert", meta: "Verified Institutional" },
+    ],
+    quickDetails: [
+      { label: "Availability", value: "3 Slots Left" },
+      { label: "Response Time", value: "~ 2 hours" },
+      { label: "Total Lessons", value: "1,450+" },
+      { label: "Education", value: "PhD, Imperial" },
+    ],
   },
   {
     id: "marcus-thorne",
@@ -56,6 +105,7 @@ export const tutors: Tutor[] = [
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCmW109BgLrcK16hmt37Wdj52MU2bWLfUeWECt76yqBwPBS6qcxZ-lhnVtlvbjvd6bI4WjFdZ3ZCKEENx2WZlkbrYgyt7A6ZTDE0agwCPCzcSLvEc3dTiQJ_CNd1CYVu5XuJqVbziyBvvTwp5Gzu79sTcEleJd4uj9umgpidqsMSGflQaJ4m08D4LOZuM4nfK-xMqNPjjr3wOWMSwMFkjGxp5W_vuRTMxhqqzoNfRb3WxwBSk5FAZDi1G7n7327PpF2B2ivQQ62tRY",
     verified: true,
+    bio: "Experienced physics tutor specializing in O-Level and A-Level preparation with a focus on mechanics and electromagnetism.",
   },
   {
     id: "elena-rodriguez",
@@ -122,6 +172,97 @@ export const cases: CaseItem[] = [
   },
 ];
 
+const caseDetails: Record<string, Omit<CaseDetail, keyof CaseItem>> = {
+  "48102": {
+    createdAgo: "2 days ago",
+    subjectLevel: "Physics (O-Level/Sec 4)",
+    budgetRange: "$60 - $85 / hr",
+    schedule: "Sundays, 2:00 PM - 4:00 PM",
+    requirementNotes:
+      "Looking for a tutor specialized in Electromagnetism and Kinetic Theory of Matter. Student is currently scoring B3 and aiming for A1 in the preliminary examinations.",
+    documents: [
+      {
+        id: "doc-1",
+        name: "Sec_4_Mock_Results.pdf",
+        icon: "picture_as_pdf",
+        size: "1.2 MB",
+        uploader: "You (Parent)",
+        initials: "JD",
+      },
+      {
+        id: "doc-2",
+        name: "Tutor_MOE_Certificate.jpg",
+        icon: "badge",
+        size: "3.4 MB",
+        uploader: "Dr. Marcus Lim",
+        image:
+          "https://lh3.googleusercontent.com/aida-public/AB6AXuAY11uolYUcer9WYKwvJDppRbs94tdXGmSwGxkq-fWRZbIBimSr5KmTegXUdVtVK8gyPz84QFw-BteIgxJGoDaGWgDGJH5bsoJVgAjWpMj64RKtS4Kz5137OzUyCNmd6E5pmC4hpcRVZp-zlL7BaclApJPXBBvJUKhF1xlKVSu-wxIYb5DRtwldXrKEPTf55ZM_KAKUYJGq87N9WlZ56EtBtwKTO94WI4T7Qc1jNXXwhTmEYAmiuMrobu47i0pe0vazxutpROjolY8",
+      },
+    ],
+    invitedTutors: [
+      {
+        id: "marcus-thorne",
+        name: "Dr. Marcus Lim",
+        status: "MATCHED",
+        subtitle: "Ex-RI Physics HOD • 12 yrs exp",
+        image:
+          "https://lh3.googleusercontent.com/aida-public/AB6AXuBBGVTXs7ki3mW75PeZ551GetGYJRllCwZ0c6AIXUpUD9tKOnOo6r5pUU7K8lMtOp5bM2ZviqC9YyEwB96Pb-f62IPFM9Q9I9ccPEywmaKmrX6Pmf5YL3ElcmJoWFamu3nC9pe0-yV4eTeYkAcOYE2hHPOTIyAm05De1qe4lwkrh20RMiyrGoN_dLwlcxJcHjWG8cTDNDEBajcmtrAWwDRbSNbB55o3OcElR2PkNet7BtHzYm2RPgFXEB2JAx2PkTieug9MfrMv3oI",
+        active: true,
+      },
+      {
+        id: "chen-wei",
+        name: "Ms. Chen Wei",
+        status: "Pending",
+        subtitle: "National University of Singapore • BSc Physics",
+        image:
+          "https://lh3.googleusercontent.com/aida-public/AB6AXuAJywwDt3IlOozAiysyLFKmZE-umfQk20oPPR34o9KzB5PBz0V9EN4tEr8oBIZCY6t9OdHapX35j0zuOurr7sPqU--k09WZ0OgCjiWCRA0xiamAgcTVaC7QKRa-t44X__0LL7r7D6jfF6dQ3-hw1ECvJufXbZAh8TrfuzoxkfBsIWvS1pkA3cMNx4OzoaVQ4l5pxTj17NfFc1GrBClgll6yQ2T8V3rMcmpXC4YVb9qfwXhCQr81ITj8hqJG86iwqYE17zmrmY8bnPk",
+        grayscale: true,
+      },
+      {
+        id: "david-tan",
+        name: "Mr. David Tan",
+        status: "Declined",
+        subtitle: "Full-time Professional Tutor • 8 yrs exp",
+        image:
+          "https://lh3.googleusercontent.com/aida-public/AB6AXuCbm8y9B2uNLjXFhmvoiP9oK98xj1tC_VaE8j6P7fgACH-fL8v_mMRQN3ZSXncH3yBk7TAAlzfW2DmXZqaCROj3YQf2TeggY1KmBJWLg-6a7eOnkm4y7t5klApQ5KrUDUqpO_MgJVoG4CWCKyChDbYLsvn2E-5DLAqMtBYTjvs5xF7WJQ7ON3qd8TB_8rqKBFTr5ppVGSIc62-9rCpPmxMiZtgBCUmn1sD39guBHpxeb1szd9D6wquywrU7KoTwjKUXBCMMIyaKSHo",
+        grayscale: true,
+      },
+    ],
+  },
+};
+
 export function getTutor(id: string): Tutor | undefined {
   return tutors.find((t) => t.id === id);
 }
+
+function createDefaultCaseDetail(summary: CaseItem): CaseDetail {
+  return {
+    ...summary,
+    createdAgo: "Recently",
+    subjectLevel: `${summary.subject} (${summary.level})`,
+    budgetRange: summary.rate,
+    schedule: "To be scheduled",
+    requirementNotes: `Tuition support for ${summary.subject} at ${summary.level} level in ${summary.location}.`,
+    documents: [],
+    invitedTutors: [],
+  };
+}
+
+export function getCase(id: string): CaseDetail | undefined {
+  const summary = cases.find((c) => c.id === id);
+  if (!summary) return undefined;
+
+  const detail = caseDetails[id];
+  return detail ? { ...summary, ...detail } : createDefaultCaseDetail(summary);
+}
+
+export function getDashboardStats() {
+  const activeCases = cases.filter((c) => c.status === "Open").length;
+  return [
+    { icon: "pending_actions", value: String(activeCases).padStart(2, "0"), label: "Active Cases" },
+    { icon: "person_search", value: "12", label: "Invited Tutors" },
+    { icon: "verified_user", value: "02", label: "Pending Documents" },
+  ];
+}
+
+export { DEFAULT_USER_AVATAR };

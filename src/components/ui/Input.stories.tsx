@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Field } from "./Field";
 import { Input } from "./Input";
+import { PasswordInput } from "./PasswordInput";
 
 const meta = {
   title: "UI/Input",
@@ -36,7 +37,12 @@ export const AuthWithIcon: Story = {
 export const Password: Story = {
   render: () => (
     <Field label="Password" htmlFor="password" labelUppercase labelSize="sm">
-      <Input id="password" variant="auth" leftIcon="lock" type="password" placeholder="••••••••" />
+      <PasswordInput
+        id="password"
+        variant="auth"
+        leftIcon="lock"
+        placeholder="••••••••"
+      />
     </Field>
   ),
 };

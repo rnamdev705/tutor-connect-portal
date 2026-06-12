@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -8,7 +7,6 @@ import { useForm } from "react-hook-form";
 import {
   Button,
   Checkbox,
-  Divider,
   Field,
   Icon,
   Input,
@@ -17,7 +15,7 @@ import {
   TextLink,
 } from "@/components/ui";
 import { getAuthErrorMessage, useAuth } from "@/lib/auth/AuthProvider";
-import { BRAND_NAME, OAUTH_GOOGLE_ICON, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
+import { BRAND_NAME, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
 import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { AuthBrandingSidebar } from "./AuthBrandingSidebar";
 
@@ -44,15 +42,15 @@ export function LoginForm() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-background">
-      <div className="w-full max-w-5xl flex flex-col md:flex-row bg-surface-container-lowest rounded-xl overflow-hidden auth-card min-h-[600px] shadow-sm">
+      <div className="w-full max-w-5xl flex flex-col md:flex-row md:items-stretch bg-surface-container-lowest rounded-xl overflow-hidden auth-card min-h-[600px] shadow-sm">
         <AuthBrandingSidebar />
-        <section className="flex-1 min-w-0 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-          <div className="max-w-md mx-auto w-full">
-            <div className="flex items-center gap-2 mb-10 md:hidden">
+        <section className="flex-1 min-w-0 p-8 md:px-12 md:py-10 lg:px-16 lg:py-12 flex flex-col justify-start">
+          <div className="max-w-md mx-auto w-full md:mx-0">
+            <div className="flex items-center gap-2 mb-8 md:hidden">
               <Icon name="school" className="text-secondary text-3xl" />
               <h1 className="text-headline-sm font-bold text-primary">{BRAND_NAME}</h1>
             </div>
-            <div className="mb-10">
+            <div className="mb-8">
               <h2 className="text-headline-lg text-on-surface mb-1">Welcome back</h2>
               <p className="text-body-md text-on-surface-variant">
                 Please enter your details to sign in.
@@ -64,7 +62,7 @@ export function LoginForm() {
               value={role}
               onChange={setRole}
               shape="pill"
-              className="mb-10"
+              className="mb-8"
             />
             <form
               className="space-y-6"
@@ -83,7 +81,7 @@ export function LoginForm() {
                   autoComplete="email"
                   variant="auth"
                   leftIcon="mail"
-                  placeholder={role === "parent" ? "sarah.chen@demo.com" : "alice.tan@demo.com"}
+                  placeholder="name@example.com"
                   {...register("email")}
                 />
               </Field>
@@ -120,25 +118,9 @@ export function LoginForm() {
                 <Icon name="arrow_forward" className="text-sm" />
               </Button>
             </form>
-            <div className="mt-10">
-              <Divider label="Or continue with" className="mb-10" />
-              <div className="grid grid-cols-2 gap-6">
-                <Button type="button" variant="outline-neutral" shape="xl" fullWidth disabled>
-                  <Image src={OAUTH_GOOGLE_ICON} alt="" width={20} height={20} />
-                  Google
-                </Button>
-                <Button type="button" variant="outline-neutral" shape="xl" fullWidth disabled>
-                  <Icon name="apps" className="text-primary" />
-                  Apple
-                </Button>
-              </div>
-            </div>
-            <p className="mt-16 text-center text-body-sm text-on-surface-variant">
+            <p className="mt-10 text-center text-body-sm text-on-surface-variant">
               Don&apos;t have an account?{" "}
               <TextLink href={ROUTES.register}>Create a {BRAND_NAME} account</TextLink>
-            </p>
-            <p className="mt-4 text-center text-body-sm text-on-surface-variant/80">
-              Demo: sarah.chen@demo.com / alice.tan@demo.com — password <strong>Demo1234!</strong>
             </p>
           </div>
         </section>

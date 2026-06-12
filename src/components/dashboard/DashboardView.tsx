@@ -42,7 +42,10 @@ export function DashboardView() {
 
   const { data, isLoading, isError, error, refetch, isFetching } = useCases(query);
 
-  const cases = data?.data.map((item, index) => mapCaseToListItem(item, index)) ?? [];
+  const cases = useMemo(
+    () => data?.data.map((item, index) => mapCaseToListItem(item, index)) ?? [],
+    [data?.data],
+  );
   const meta = data?.meta;
   const isParent = user?.role === "PARENT";
 

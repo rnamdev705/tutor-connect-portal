@@ -33,6 +33,18 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+async function fetchCurrentUser(): Promise<User | null> {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    return await authApi.getMe();
+  } catch {
+    clearToken();
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -40,24 +52,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
-    const token = getToken();
-    if (!token) {
-      setUser(null);
-      return;
-    }
-
-    try {
-      const me = await authApi.getMe();
-      setUser(me);
-    } catch {
-      clearToken();
-      setUser(null);
-    }
+    const me = await fetchCurrentUser();
+    setUser(me);
   }, []);
 
   useEffect(() => {
-    refreshUser().finally(() => setLoading(false));
-  }, [refreshUser]);
+    let active = true;
+
+    fetchCurrentUser().then((me) => {
+      if (active) {
+        setUser(me);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     function onUnauthorized() {

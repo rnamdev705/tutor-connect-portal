@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 
+/** Material Symbols Outlined — use lowercase names with underscores (e.g. arrow_forward). */
 type IconProps = {
   name: string;
   className?: string;

@@ -228,7 +228,7 @@ export function CaseWorkspaceView({ caseDetail }: CaseWorkspaceViewProps) {
                       <p className="text-label-sm text-on-surface-variant mb-2">{tutor.subtitle}</p>
                       {tutor.active && (
                         <div className="flex gap-2">
-                          <Button size="sm" shape="none" className="text-label-sm uppercase">
+                          <Button size="sm" shape="none" uppercase className="text-label-sm">
                             Chat
                           </Button>
                           <Link

@@ -53,12 +53,12 @@ export function buttonClassName({
   className,
 }: ButtonStyleProps) {
   return cn(
-    "inline-flex items-center justify-center gap-2 font-medium transition-all disabled:opacity-70 disabled:pointer-events-none",
+    "inline-flex items-center justify-center gap-2 font-medium transition-all disabled:opacity-70 disabled:pointer-events-none [&_.material-symbols-outlined]:normal-case [&_.material-symbols-outlined]:shrink-0",
     variantStyles[variant],
     sizeStyles[size],
     shapeStyles[shape],
     fullWidth && "w-full",
-    uppercase && "uppercase tracking-widest [&_.material-symbols-outlined]:normal-case",
+    uppercase && "uppercase tracking-widest",
     className,
   );
 }

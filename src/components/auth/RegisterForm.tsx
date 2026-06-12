@@ -1,6 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Button,
   Checkbox,
@@ -11,28 +14,48 @@ import {
   SegmentedControl,
   TextLink,
 } from "@/components/ui";
-import { RegisterBrandingPanel } from "./RegisterBrandingPanel";
+import { getAuthErrorMessage, useAuth } from "@/lib/auth/AuthProvider";
+import type { Role } from "@/lib/api/types";
 import { BRAND_NAME, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
+import { registerSchema, type RegisterFormValues } from "@/lib/validations/register";
+import { RegisterBrandingPanel } from "./RegisterBrandingPanel";
+
+function toApiRole(role: AuthRole): Role {
+  return role === "parent" ? "PARENT" : "TUTOR";
+}
 
 export function RegisterForm() {
+  const { register: registerUser } = useAuth();
   const [role, setRole] = useState<AuthRole>("parent");
-  const [passwordError, setPasswordError] = useState<string | undefined>();
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-    const confirmPassword = (form.elements.namedItem("confirm_password") as HTMLInputElement)
-      .value;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      displayName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: false,
+    },
+  });
 
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match.");
-      return;
-    }
+  const termsAccepted = watch("terms");
 
-    setPasswordError(undefined);
-    // Registration is not available in the demo API — use seeded accounts on the login page.
-  }
+  const registerMutation = useMutation({
+    mutationFn: (values: RegisterFormValues) =>
+      registerUser({
+        email: values.email.trim().toLowerCase(),
+        password: values.password,
+        role: toApiRole(role),
+        displayName: values.displayName.trim(),
+      }),
+  });
 
   return (
     <div className="bg-background text-on-surface min-h-screen flex overflow-hidden">
@@ -57,61 +80,71 @@ export function RegisterForm() {
             activeVariant="secondary-container"
             className="mb-10"
           />
-          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-            <Field label="Full Name" htmlFor="full_name">
+          <form
+            className="space-y-6"
+            onSubmit={handleSubmit((values) => registerMutation.mutate(values))}
+            noValidate
+          >
+            {registerMutation.isError && (
+              <p className="text-body-sm text-error bg-error-container px-4 py-3 rounded-lg" role="alert">
+                {getAuthErrorMessage(registerMutation.error)}
+              </p>
+            )}
+            <Field label="Full Name" htmlFor="displayName" error={errors.displayName?.message}>
               <Input
-                id="full_name"
-                name="full_name"
-                required
+                id="displayName"
                 autoComplete="name"
                 type="text"
                 placeholder="Enter your full name"
+                {...register("displayName")}
               />
             </Field>
-            <Field label="Email Address" htmlFor="email">
+            <Field label="Email Address" htmlFor="email" error={errors.email?.message}>
               <Input
                 id="email"
-                name="email"
-                required
                 autoComplete="email"
                 type="email"
                 placeholder="name@example.com"
+                {...register("email")}
               />
             </Field>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Field label="Password" htmlFor="password" error={passwordError}>
+              <Field label="Password" htmlFor="password" error={errors.password?.message}>
                 <PasswordInput
                   id="password"
-                  name="password"
-                  required
                   autoComplete="new-password"
                   placeholder="••••••••"
+                  {...register("password")}
                 />
               </Field>
-              <Field label="Confirm Password" htmlFor="confirm_password">
+              <Field label="Confirm Password" htmlFor="confirm_password" error={errors.confirmPassword?.message}>
                 <PasswordInput
                   id="confirm_password"
-                  name="confirm_password"
-                  required
                   autoComplete="new-password"
                   placeholder="••••••••"
+                  {...register("confirmPassword")}
                 />
               </Field>
             </div>
-            <Checkbox
-              id="terms"
-              name="terms"
-              required
-              labelClassName="leading-relaxed"
-              label="I agree to the Terms of Service and Privacy Policy."
-            />
-            <Button type="submit" variant="secondary" size="lg" fullWidth uppercase disabled>
-              Create Account
+            <Field error={errors.terms?.message}>
+              <Checkbox
+                id="terms"
+                labelClassName="leading-relaxed"
+                label="I agree to the Terms of Service and Privacy Policy."
+                checked={termsAccepted}
+                onChange={(e) => setValue("terms", e.target.checked, { shouldValidate: true })}
+              />
+            </Field>
+            <Button
+              type="submit"
+              variant="secondary"
+              size="lg"
+              fullWidth
+              uppercase
+              disabled={registerMutation.isPending}
+            >
+              {registerMutation.isPending ? "Creating account…" : "Create Account"}
             </Button>
-            <p className="text-body-sm text-on-surface-variant text-center">
-              Registration is disabled for this demo. Use seeded accounts on the{" "}
-              <TextLink href={ROUTES.login}>sign in page</TextLink> (password <strong>Demo1234!</strong>).
-            </p>
           </form>
           <footer className="mt-16 text-center space-y-6">
             <p className="text-body-md text-on-surface-variant">

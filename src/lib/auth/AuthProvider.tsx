@@ -11,7 +11,7 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { authApi, type LoginRequest, type User } from "@/lib/api";
+import { authApi, type LoginRequest, type RegisterRequest, type User } from "@/lib/api";
 import { ApiError } from "@/lib/api/errors";
 import { ROUTES } from "@/lib/constants";
 import { clearToken, getToken, setToken } from "./token";
@@ -20,6 +20,7 @@ type AuthContextValue = {
   user: User | null;
   loading: boolean;
   login: (input: LoginRequest) => Promise<void>;
+  register: (input: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 };
@@ -63,6 +64,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [router],
   );
 
+  const register = useCallback(
+    async (input: RegisterRequest) => {
+      const result = await authApi.register(input);
+      setToken(result.token);
+      const me = await authApi.getMe();
+      setUser(me);
+      router.push(input.role === "TUTOR" ? ROUTES.profile : ROUTES.dashboard);
+    },
+    [router],
+  );
+
   const logout = useCallback(async () => {
     try {
       if (getToken()) {
@@ -79,8 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router, queryClient]);
 
   const value = useMemo(
-    () => ({ user, loading, login, logout, refreshUser }),
-    [user, loading, login, logout, refreshUser],
+    () => ({ user, loading, login, register, logout, refreshUser }),
+    [user, loading, login, register, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

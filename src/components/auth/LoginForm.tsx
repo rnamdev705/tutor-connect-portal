@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Button,
   Checkbox,
@@ -14,17 +16,31 @@ import {
   SegmentedControl,
   TextLink,
 } from "@/components/ui";
-import { AuthBrandingSidebar } from "./AuthBrandingSidebar";
+import { getAuthErrorMessage, useAuth } from "@/lib/auth/AuthProvider";
 import { BRAND_NAME, OAUTH_GOOGLE_ICON, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
+import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
+import { AuthBrandingSidebar } from "./AuthBrandingSidebar";
 
 export function LoginForm() {
-  const router = useRouter();
+  const { login } = useAuth();
   const [role, setRole] = useState<AuthRole>("parent");
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    router.push(ROUTES.dashboard);
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: (values: LoginFormValues) =>
+      login({
+        email: values.email.trim().toLowerCase(),
+        password: values.password,
+      }),
+  });
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-background">
@@ -50,17 +66,25 @@ export function LoginForm() {
               shape="pill"
               className="mb-10"
             />
-            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-              <Field label="Email Address" htmlFor="email" labelUppercase labelSize="sm">
+            <form
+              className="space-y-6"
+              onSubmit={handleSubmit((values) => loginMutation.mutate(values))}
+              noValidate
+            >
+              {loginMutation.isError && (
+                <p className="text-body-sm text-error bg-error-container px-4 py-3 rounded-lg" role="alert">
+                  {getAuthErrorMessage(loginMutation.error)}
+                </p>
+              )}
+              <Field label="Email Address" htmlFor="email" labelUppercase labelSize="sm" error={errors.email?.message}>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
-                  required
                   autoComplete="email"
                   variant="auth"
                   leftIcon="mail"
-                  placeholder={role === "parent" ? "sarah@example.com" : "dr.smith@edumatch.edu"}
+                  placeholder={role === "parent" ? "sarah.chen@demo.com" : "alice.tan@demo.com"}
+                  {...register("email")}
                 />
               </Field>
               <Field
@@ -68,22 +92,30 @@ export function LoginForm() {
                 htmlFor="password"
                 labelUppercase
                 labelSize="sm"
+                error={errors.password?.message}
                 action={
                   <span className="text-label-sm text-secondary">Forgot password?</span>
                 }
               >
                 <PasswordInput
                   id="password"
-                  name="password"
-                  required
                   autoComplete="current-password"
                   variant="auth"
                   leftIcon="lock"
                   placeholder="••••••••"
+                  {...register("password")}
                 />
               </Field>
               <Checkbox id="remember" name="remember" label="Remember me for 30 days" />
-              <Button type="submit" variant="secondary" size="lg" shape="xl" fullWidth uppercase>
+              <Button
+                type="submit"
+                variant="secondary"
+                size="lg"
+                shape="xl"
+                fullWidth
+                uppercase
+                disabled={loginMutation.isPending}
+              >
                 Sign In as {role === "parent" ? "Parent" : "Tutor"}
                 <Icon name="arrow_forward" className="text-sm" />
               </Button>
@@ -104,6 +136,9 @@ export function LoginForm() {
             <p className="mt-16 text-center text-body-sm text-on-surface-variant">
               Don&apos;t have an account?{" "}
               <TextLink href={ROUTES.register}>Create a {BRAND_NAME} account</TextLink>
+            </p>
+            <p className="mt-4 text-center text-body-sm text-on-surface-variant/80">
+              Demo: sarah.chen@demo.com / alice.tan@demo.com — password <strong>Demo1234!</strong>
             </p>
           </div>
         </section>

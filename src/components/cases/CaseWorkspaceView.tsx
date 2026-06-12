@@ -9,7 +9,7 @@ import {
 } from "@/components/ui";
 import type { BadgeVariant } from "@/components/ui/Badge";
 import { ROUTES } from "@/lib/constants";
-import type { CaseDetail, InvitedTutor } from "@/lib/data";
+import type { CaseDetail, InvitedTutor } from "@/lib/types/domain";
 
 const inviteStatusVariant: Record<InvitedTutor["status"], BadgeVariant> = {
   MATCHED: "matched",
@@ -18,16 +18,32 @@ const inviteStatusVariant: Record<InvitedTutor["status"], BadgeVariant> = {
 };
 
 type CaseWorkspaceViewProps = {
-  caseDetail: CaseDetail;
+  caseDetail: CaseDetail & { invitedTutors: InvitedTutor[] };
+  viewLabel?: string;
+  canUpload?: boolean;
+  canInvite?: boolean;
+  uploadPending?: boolean;
+  downloadPending?: boolean;
+  onUploadClick?: () => void;
+  onDownload?: (documentId: string, filename: string) => void;
 };
 
-export function CaseWorkspaceView({ caseDetail }: CaseWorkspaceViewProps) {
+export function CaseWorkspaceView({
+  caseDetail,
+  viewLabel = "CASE VIEW",
+  canUpload = false,
+  canInvite = false,
+  uploadPending = false,
+  downloadPending = false,
+  onUploadClick,
+  onDownload,
+}: CaseWorkspaceViewProps) {
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <Badge variant="parent">PARENT VIEW</Badge>
+            <Badge variant="parent">{viewLabel}</Badge>
             <Badge variant="secure" icon="lock" filledIcon>
               SECURE CASE
             </Badge>
@@ -41,18 +57,20 @@ export function CaseWorkspaceView({ caseDetail }: CaseWorkspaceViewProps) {
           <Badge status={caseDetail.status} icon="check_circle" filledIcon className="px-6 py-2 text-label-md">
             {caseDetail.status.toUpperCase()}
           </Badge>
-          <Link
-            href={ROUTES.tutors}
-            className={buttonClassName({
-              variant: "primary",
-              uppercase: true,
-              shape: "none",
-              className: "px-10 py-3 tracking-wider shadow-sm",
-            })}
-          >
-            <Icon name="person_add" />
-            Invite Tutor
-          </Link>
+          {canInvite && (
+            <Link
+              href={ROUTES.tutors}
+              className={buttonClassName({
+                variant: "primary",
+                uppercase: true,
+                shape: "none",
+                className: "px-10 py-3 tracking-wider shadow-sm",
+              })}
+            >
+              <Icon name="person_add" />
+              Invite Tutor
+            </Link>
+          )}
         </div>
       </div>
 
@@ -133,58 +151,62 @@ export function CaseWorkspaceView({ caseDetail }: CaseWorkspaceViewProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
-                  {caseDetail.documents.map((doc) => (
-                    <tr key={doc.id} className="hover:bg-surface-container-low transition-colors">
-                      <td className="p-6">
-                        <div className="flex items-center gap-3">
-                          <Icon name={doc.icon} className="text-on-secondary-fixed-variant" />
-                          <span className="text-body-sm font-medium">{doc.name}</span>
-                        </div>
-                      </td>
-                      <td className="p-6 text-body-sm text-on-surface-variant">{doc.size}</td>
-                      <td className="p-6">
-                        <div className="flex items-center gap-2">
-                          {doc.initials ? (
-                            <div className="w-6 h-6 rounded-full bg-primary text-white text-label-sm flex items-center justify-center font-bold">
-                              {doc.initials}
-                            </div>
-                          ) : (
-                            doc.image && (
-                              <div className="w-6 h-6 rounded-full relative overflow-hidden">
-                                <Image
-                                  src={doc.image}
-                                  alt={doc.uploader}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            )
-                          )}
-                          <span className="text-body-sm">{doc.uploader}</span>
-                        </div>
-                      </td>
-                      <td className="p-6 text-right">
-                        <Button variant="ghost" className="text-secondary h-auto px-0 hover:bg-transparent hover:underline">
-                          Download
-                        </Button>
+                  {caseDetail.documents.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="p-6 text-body-sm text-on-surface-variant text-center">
+                        No documents uploaded yet.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    caseDetail.documents.map((doc) => (
+                      <tr key={doc.id} className="hover:bg-surface-container-low transition-colors">
+                        <td className="p-6">
+                          <div className="flex items-center gap-3">
+                            <Icon name={doc.icon} className="text-on-secondary-fixed-variant" />
+                            <span className="text-body-sm font-medium">{doc.name}</span>
+                          </div>
+                        </td>
+                        <td className="p-6 text-body-sm text-on-surface-variant">{doc.size}</td>
+                        <td className="p-6">
+                          <span className="text-body-sm">{doc.uploader}</span>
+                        </td>
+                        <td className="p-6 text-right">
+                          <Button
+                            variant="ghost"
+                            className="text-secondary h-auto px-0 hover:bg-transparent hover:underline"
+                            disabled={downloadPending}
+                            onClick={() => onDownload?.(doc.id, doc.name)}
+                          >
+                            Download
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-            <div className="p-6">
-              <div className="border-2 border-dashed border-outline-variant rounded-lg p-16 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer group">
-                <Icon
-                  name="cloud_upload"
-                  className="text-on-surface-variant group-hover:text-secondary transition-colors text-3xl"
-                />
-                <p className="mt-2 text-label-md text-on-surface">Click to upload or drag and drop</p>
-                <p className="text-label-sm text-on-surface-variant mt-1">
-                  PDF, JPG, PNG up to 10MB (Encrypted &amp; Secure)
-                </p>
+            {canUpload && (
+              <div className="p-6">
+                <button
+                  type="button"
+                  disabled={uploadPending}
+                  onClick={onUploadClick}
+                  className="w-full border-2 border-dashed border-outline-variant rounded-lg p-16 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer group disabled:opacity-60"
+                >
+                  <Icon
+                    name={uploadPending ? "progress_activity" : "cloud_upload"}
+                    className={`text-on-surface-variant group-hover:text-secondary transition-colors text-3xl ${uploadPending ? "animate-spin" : ""}`}
+                  />
+                  <p className="mt-2 text-label-md text-on-surface">
+                    {uploadPending ? "Uploading…" : "Click to upload or drag and drop"}
+                  </p>
+                  <p className="text-label-sm text-on-surface-variant mt-1">
+                    PDF, DOCX, PNG, JPG up to 10MB
+                  </p>
+                </button>
               </div>
-            </div>
+            )}
           </Card>
         </div>
 
@@ -197,42 +219,38 @@ export function CaseWorkspaceView({ caseDetail }: CaseWorkspaceViewProps) {
               </span>
             </div>
             <div className="space-y-6">
-              {caseDetail.invitedTutors.map((tutor) => (
-                <div
-                  key={tutor.id}
-                  className={
-                    tutor.active
-                      ? "p-3 rounded-xl border-2 border-secondary bg-secondary/5"
-                      : "p-3 rounded-xl border border-outline-variant hover:border-outline transition-colors"
-                  }
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="relative w-12 h-12 rounded-full border border-outline-variant overflow-hidden shrink-0">
-                      <Image
-                        src={tutor.image}
-                        alt={tutor.name}
-                        fill
-                        className={`object-cover ${tutor.grayscale ? "grayscale" : ""}`}
-                      />
-                      {tutor.active && (
-                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-tertiary-fixed border-2 border-surface-container-lowest rounded-full" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-center gap-2">
-                        <p className="text-label-md text-on-surface truncate">{tutor.name}</p>
-                        <Badge variant={inviteStatusVariant[tutor.status]} className="text-label-sm shrink-0">
-                          {tutor.status}
-                        </Badge>
+              {caseDetail.invitedTutors.length === 0 ? (
+                <p className="text-body-sm text-on-surface-variant">No tutors invited yet.</p>
+              ) : (
+                caseDetail.invitedTutors.map((tutor) => (
+                  <div
+                    key={tutor.id}
+                    className={
+                      tutor.active
+                        ? "p-3 rounded-xl border-2 border-secondary bg-secondary/5"
+                        : "p-3 rounded-xl border border-outline-variant hover:border-outline transition-colors"
+                    }
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="relative w-12 h-12 rounded-full border border-outline-variant overflow-hidden shrink-0">
+                        <Image
+                          src={tutor.image}
+                          alt={tutor.name}
+                          fill
+                          className={`object-cover ${tutor.grayscale ? "grayscale" : ""}`}
+                        />
                       </div>
-                      <p className="text-label-sm text-on-surface-variant mb-2">{tutor.subtitle}</p>
-                      {tutor.active && (
-                        <div className="flex gap-2">
-                          <Button size="sm" shape="none" uppercase className="text-label-sm">
-                            Chat
-                          </Button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center gap-2">
+                          <p className="text-label-md text-on-surface truncate">{tutor.name}</p>
+                          <Badge variant={inviteStatusVariant[tutor.status]} className="text-label-sm shrink-0">
+                            {tutor.status}
+                          </Badge>
+                        </div>
+                        <p className="text-label-sm text-on-surface-variant mb-2">{tutor.subtitle}</p>
+                        {tutor.profileId && (
                           <Link
-                            href={ROUTES.tutor(tutor.id)}
+                            href={ROUTES.tutor(tutor.profileId)}
                             className={buttonClassName({
                               variant: "outline-neutral",
                               size: "sm",
@@ -243,12 +261,12 @@ export function CaseWorkspaceView({ caseDetail }: CaseWorkspaceViewProps) {
                           >
                             View Profile
                           </Link>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </Card>
         </div>

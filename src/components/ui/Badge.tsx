@@ -1,7 +1,7 @@
 import { HTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "@/components/ui/Icon";
-import type { CaseStatus } from "@/lib/data";
+import type { CaseStatus } from "@/lib/types/domain";
 
 const statusStyles: Record<CaseStatus, string> = {
   Open: "bg-surface-container text-on-surface-variant",

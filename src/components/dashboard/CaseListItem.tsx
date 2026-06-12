@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Badge, Card, Icon } from "@/components/ui";
 import { ROUTES } from "@/lib/constants";
-import type { CaseItem } from "@/lib/data";
+import type { CaseItem } from "@/lib/types/domain";
 
 type CaseListItemProps = {
   caseItem: CaseItem;

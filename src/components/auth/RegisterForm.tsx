@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Button,
   Checkbox,
@@ -16,7 +15,6 @@ import { RegisterBrandingPanel } from "./RegisterBrandingPanel";
 import { BRAND_NAME, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
 
 export function RegisterForm() {
-  const router = useRouter();
   const [role, setRole] = useState<AuthRole>("parent");
   const [passwordError, setPasswordError] = useState<string | undefined>();
 
@@ -33,7 +31,7 @@ export function RegisterForm() {
     }
 
     setPasswordError(undefined);
-    router.push(ROUTES.dashboard);
+    // Registration is not available in the demo API — use seeded accounts on the login page.
   }
 
   return (
@@ -107,9 +105,13 @@ export function RegisterForm() {
               labelClassName="leading-relaxed"
               label="I agree to the Terms of Service and Privacy Policy."
             />
-            <Button type="submit" variant="secondary" size="lg" fullWidth uppercase>
+            <Button type="submit" variant="secondary" size="lg" fullWidth uppercase disabled>
               Create Account
             </Button>
+            <p className="text-body-sm text-on-surface-variant text-center">
+              Registration is disabled for this demo. Use seeded accounts on the{" "}
+              <TextLink href={ROUTES.login}>sign in page</TextLink> (password <strong>Demo1234!</strong>).
+            </p>
           </form>
           <footer className="mt-16 text-center space-y-6">
             <p className="text-body-md text-on-surface-variant">

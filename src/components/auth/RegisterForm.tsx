@@ -77,8 +77,15 @@ export function RegisterForm() {
               labelClassName="leading-relaxed"
               label={
                 <>
-                  I agree to the <TextLink href="#">Terms of Service</TextLink> and{" "}
-                  <TextLink href="#">Privacy Policy</TextLink>.
+                  I agree to the{" "}
+                  <a className="text-secondary font-bold hover:underline" href="#">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a className="text-secondary font-bold hover:underline" href="#">
+                    Privacy Policy
+                  </a>
+                  .
                 </>
               }
             />

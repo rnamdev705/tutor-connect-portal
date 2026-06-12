@@ -6,6 +6,7 @@ import type {
   CaseListResponse,
   CreateCaseRequest,
   InviteTutorRequest,
+  UpdateCaseRequest,
 } from "./types";
 
 export function listCases(query: CaseListQuery = {}) {
@@ -18,6 +19,10 @@ export function getCase(id: string) {
 
 export function createCase(input: CreateCaseRequest) {
   return apiRequest<Case>("/cases", { method: "POST", body: input });
+}
+
+export function updateCase(caseId: string, input: UpdateCaseRequest) {
+  return apiRequest<Case>(`/cases/${caseId}`, { method: "PATCH", body: input });
 }
 
 export function inviteTutor(caseId: string, input: InviteTutorRequest) {

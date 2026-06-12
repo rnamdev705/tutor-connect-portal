@@ -22,10 +22,13 @@ type CaseWorkspaceViewProps = {
   viewLabel?: string;
   canUpload?: boolean;
   canInvite?: boolean;
+  canClose?: boolean;
+  closePending?: boolean;
   uploadPending?: boolean;
   downloadPending?: boolean;
   onUploadClick?: () => void;
   onDownload?: (documentId: string, filename: string) => void;
+  onClose?: () => void;
 };
 
 export function CaseWorkspaceView({
@@ -33,14 +36,17 @@ export function CaseWorkspaceView({
   viewLabel = "CASE VIEW",
   canUpload = false,
   canInvite = false,
+  canClose = false,
+  closePending = false,
   uploadPending = false,
   downloadPending = false,
   onUploadClick,
   onDownload,
+  onClose,
 }: CaseWorkspaceViewProps) {
   return (
     <>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <Badge variant="parent">{viewLabel}</Badge>
@@ -64,12 +70,21 @@ export function CaseWorkspaceView({
                 variant: "primary",
                 uppercase: true,
                 shape: "none",
-                className: "px-10 py-3 tracking-wider shadow-sm",
+                className: "px-6 py-3 tracking-wider shadow-sm",
               })}
             >
               <Icon name="person_add" />
               Invite Tutor
             </Link>
+          )}
+          {canClose && (
+            <Button
+              variant="outline"
+              disabled={closePending}
+              onClick={onClose}
+            >
+              Close case
+            </Button>
           )}
         </div>
       </div>
@@ -81,7 +96,7 @@ export function CaseWorkspaceView({
               <Icon name="info" className="text-secondary" />
               <h2 className="text-headline-sm">Case Specification</h2>
             </div>
-            <dl className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
                 <div>
                   <dt className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-1">
@@ -117,7 +132,7 @@ export function CaseWorkspaceView({
                 </div>
               </div>
             </dl>
-            <div className="mt-10 p-6 bg-surface-container-low rounded-lg border border-outline-variant border-dashed">
+            <div className="mt-6 p-4 bg-surface-container-low rounded-lg border border-outline-variant border-dashed">
               <h3 className="text-label-md mb-2">Requirement Notes</h3>
               <p className="text-body-sm text-on-surface-variant leading-relaxed">
                 {caseDetail.requirementNotes}
@@ -125,87 +140,55 @@ export function CaseWorkspaceView({
             </div>
           </Card>
 
-          <Card variant="profile" padding="none" className="overflow-hidden">
-            <div className="p-6 flex justify-between items-center border-b border-outline-variant">
-              <div className="flex items-center gap-3">
-                <Icon name="shield" className="text-secondary" />
-                <h2 className="text-headline-sm">Secure Document Vault</h2>
-              </div>
-              <Badge variant="secure" className="rounded text-label-sm">
-                256-BIT ENCRYPTION
-              </Badge>
+          <Card variant="profile" padding="md">
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-outline-variant">
+              <Icon name="attach_file" className="text-secondary" />
+              <h2 className="text-headline-sm">Documents</h2>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-surface-container-low border-b border-outline-variant">
-                  <tr>
-                    {["Document Name", "Size", "Uploaded By", "Action"].map((heading, i) => (
-                      <th
-                        key={heading}
-                        scope="col"
-                        className={`p-6 text-label-sm text-on-surface-variant ${i === 3 ? "text-right" : ""}`}
-                      >
-                        {heading.toUpperCase()}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant">
-                  {caseDetail.documents.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="p-6 text-body-sm text-on-surface-variant text-center">
-                        No documents uploaded yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    caseDetail.documents.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-surface-container-low transition-colors">
-                        <td className="p-6">
-                          <div className="flex items-center gap-3">
-                            <Icon name={doc.icon} className="text-on-secondary-fixed-variant" />
-                            <span className="text-body-sm font-medium">{doc.name}</span>
-                          </div>
-                        </td>
-                        <td className="p-6 text-body-sm text-on-surface-variant">{doc.size}</td>
-                        <td className="p-6">
-                          <span className="text-body-sm">{doc.uploader}</span>
-                        </td>
-                        <td className="p-6 text-right">
-                          <Button
-                            variant="ghost"
-                            className="text-secondary h-auto px-0 hover:bg-transparent hover:underline"
-                            disabled={downloadPending}
-                            onClick={() => onDownload?.(doc.id, doc.name)}
-                          >
-                            Download
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            {caseDetail.documents.length === 0 ? (
+              <p className="text-body-sm text-on-surface-variant mb-4">No documents uploaded yet.</p>
+            ) : (
+              <ul className="space-y-2 mb-4">
+                {caseDetail.documents.map((doc) => (
+                  <li
+                    key={doc.id}
+                    className="flex items-center justify-between gap-3 p-3 rounded-lg border border-outline-variant bg-surface-container-lowest"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon name={doc.icon} className="text-secondary shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-body-sm font-medium truncate">{doc.name}</p>
+                        <p className="text-label-sm text-on-surface-variant">{doc.size}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="text-secondary shrink-0"
+                      disabled={downloadPending}
+                      onClick={() => onDownload?.(doc.id, doc.name)}
+                    >
+                      Download
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
             {canUpload && (
-              <div className="p-6">
-                <button
-                  type="button"
-                  disabled={uploadPending}
-                  onClick={onUploadClick}
-                  className="w-full border-2 border-dashed border-outline-variant rounded-lg p-16 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer group disabled:opacity-60"
-                >
-                  <Icon
-                    name={uploadPending ? "progress_activity" : "cloud_upload"}
-                    className={`text-on-surface-variant group-hover:text-secondary transition-colors text-3xl ${uploadPending ? "animate-spin" : ""}`}
-                  />
-                  <p className="mt-2 text-label-md text-on-surface">
-                    {uploadPending ? "Uploading…" : "Click to upload or drag and drop"}
-                  </p>
-                  <p className="text-label-sm text-on-surface-variant mt-1">
-                    PDF, DOCX, PNG, JPG up to 10MB
-                  </p>
-                </button>
-              </div>
+              <button
+                type="button"
+                disabled={uploadPending}
+                onClick={onUploadClick}
+                className="w-full border border-dashed border-outline-variant rounded-lg p-6 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer group disabled:opacity-60"
+              >
+                <Icon
+                  name={uploadPending ? "progress_activity" : "cloud_upload"}
+                  className={`text-on-surface-variant group-hover:text-secondary text-2xl ${uploadPending ? "animate-spin" : ""}`}
+                />
+                <p className="mt-2 text-label-md text-on-surface">
+                  {uploadPending ? "Uploading…" : "Upload document"}
+                </p>
+                <p className="text-label-sm text-on-surface-variant mt-1">PDF, DOCX, PNG, JPG up to 10MB</p>
+              </button>
             )}
           </Card>
         </div>
@@ -222,15 +205,8 @@ export function CaseWorkspaceView({
               {caseDetail.invitedTutors.length === 0 ? (
                 <p className="text-body-sm text-on-surface-variant">No tutors invited yet.</p>
               ) : (
-                caseDetail.invitedTutors.map((tutor) => (
-                  <div
-                    key={tutor.id}
-                    className={
-                      tutor.active
-                        ? "p-3 rounded-xl border-2 border-secondary bg-secondary/5"
-                        : "p-3 rounded-xl border border-outline-variant hover:border-outline transition-colors"
-                    }
-                  >
+                caseDetail.invitedTutors.map((tutor) => {
+                  const row = (
                     <div className="flex items-start gap-3">
                       <div className="relative w-12 h-12 rounded-full border border-outline-variant overflow-hidden shrink-0">
                         <Image
@@ -247,25 +223,33 @@ export function CaseWorkspaceView({
                             {tutor.status}
                           </Badge>
                         </div>
-                        <p className="text-label-sm text-on-surface-variant mb-2">{tutor.subtitle}</p>
-                        {tutor.profileId && (
-                          <Link
-                            href={ROUTES.tutor(tutor.profileId)}
-                            className={buttonClassName({
-                              variant: "outline-neutral",
-                              size: "sm",
-                              shape: "none",
-                              uppercase: true,
-                              className: "text-label-sm",
-                            })}
-                          >
-                            View Profile
-                          </Link>
-                        )}
+                        <p className="text-label-sm text-on-surface-variant">{tutor.subtitle}</p>
                       </div>
+                      <Icon name="chevron_right" className="text-on-surface-variant shrink-0" />
                     </div>
-                  </div>
-                ))
+                  );
+
+                  return tutor.profileId ? (
+                    <Link
+                      key={tutor.id}
+                      href={ROUTES.tutor(tutor.profileId)}
+                      className={
+                        tutor.active
+                          ? "block p-3 rounded-xl border-2 border-secondary bg-secondary/5 hover:bg-secondary/10 transition-colors"
+                          : "block p-3 rounded-xl border border-outline-variant hover:border-secondary transition-colors"
+                      }
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <div
+                      key={tutor.id}
+                      className="p-3 rounded-xl border border-outline-variant"
+                    >
+                      {row}
+                    </div>
+                  );
+                })
               )}
             </div>
           </Card>

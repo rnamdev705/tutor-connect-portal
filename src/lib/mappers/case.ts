@@ -67,6 +67,7 @@ function mapDocument(doc: DocumentMeta): CaseDocument {
 function mapInvitation(inv: ApiCaseDetail["invitations"][number]): InvitedTutor {
   return {
     id: inv.tutorId,
+    profileId: inv.tutor.profileId ?? undefined,
     name: inv.tutor.displayName ?? inv.tutor.email,
     status: "Pending",
     subtitle: inv.tutor.email,
@@ -87,7 +88,7 @@ export function mapCaseDetail(
     createdAgo: formatRelativeDate(detail.createdAt),
     subjectLevel: `${detail.level} · ${detail.subject}`,
     budgetRange: formatRate(detail.budgetPerHour),
-    schedule: detail.location,
+    schedule: "Flexible — to be arranged with tutor",
     requirementNotes: `Tuition case for ${detail.subject} at ${detail.level} level.`,
     documents: documents.map(mapDocument),
     invitedTutors: detail.invitations.map(mapInvitation),

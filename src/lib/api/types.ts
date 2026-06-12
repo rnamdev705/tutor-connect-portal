@@ -30,6 +30,7 @@ export type LoginResponse = {
 export type LoginRequest = {
   email: string;
   password: string;
+  role?: Role;
 };
 
 export type RegisterRequest = {
@@ -60,7 +61,17 @@ export type CaseInvitation = {
     id: string;
     email: string;
     displayName: string | null;
+    profileId: string | null;
   };
+};
+
+export type UpdateCaseRequest = {
+  title?: string;
+  subject?: string;
+  level?: string;
+  location?: string;
+  budgetPerHour?: number;
+  status?: CaseStatus;
 };
 
 export type CaseDetail = Case & {

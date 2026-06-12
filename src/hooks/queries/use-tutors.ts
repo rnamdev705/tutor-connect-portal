@@ -6,16 +6,19 @@ import type { TutorListQuery } from "@/lib/api/types";
 import { mapTutorProfile, mapTutorProfileSummary } from "@/lib/mappers/tutor";
 import { queryKeys } from "@/lib/query/keys";
 
-export function useTutors(query: TutorListQuery = {}) {
+export function useTutors(query: TutorListQuery & { enabled?: boolean } = {}) {
+  const { enabled = true, ...listQuery } = query;
+
   return useQuery({
-    queryKey: queryKeys.tutors.list(query),
+    queryKey: queryKeys.tutors.list(listQuery),
     queryFn: async () => {
-      const response = await tutorsApi.listTutors(query);
+      const response = await tutorsApi.listTutors(listQuery);
       return {
         ...response,
         data: response.data.map(mapTutorProfileSummary),
       };
     },
+    enabled,
   });
 }
 

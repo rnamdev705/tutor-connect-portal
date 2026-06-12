@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { QueryState } from "@/components/common/QueryState";
-import { PortalHeader } from "@/components/layout/PortalHeader";
+import { PortalShell } from "@/components/layout/PortalShell";
 import { Button, Card, Field, Input } from "@/components/ui";
 import { useUploadProfileDocument, useUpsertMyProfile } from "@/hooks/mutations/use-tutor-mutations";
 import { useMyTutorProfile } from "@/hooks/queries/use-tutors";
@@ -64,10 +64,8 @@ export function TutorProfileEditView() {
   const isNewProfile = isError && error instanceof ApiError && error.status === 404;
 
   return (
-    <div className="bg-background text-on-surface min-h-screen">
-      <PortalHeader active="profile" />
-      <main className="max-w-3xl mx-auto px-6 py-10">
-        <header className="mb-10">
+    <PortalShell active="profile" mainClassName="max-w-3xl">
+        <header className="mb-8">
           <h1 className="text-headline-lg text-on-surface">My tutor profile</h1>
           <p className="text-body-md text-on-surface-variant mt-1">
             Parents browse this profile in the tutor directory.
@@ -153,7 +151,6 @@ export function TutorProfileEditView() {
             </Card>
           )}
         </QueryState>
-      </main>
-    </div>
+    </PortalShell>
   );
 }

@@ -25,8 +25,8 @@ export function TutorCard({ tutor, showInvite = false }: TutorCardProps) {
       <Card className="group relative overflow-hidden" padding="md">
         <div className="absolute top-0 left-0 w-1.5 h-full bg-secondary" />
         <div className="flex gap-6">
-          <div className="shrink-0">
-            <div className="w-24 h-24 rounded-full border-2 border-surface-container overflow-hidden relative">
+          <Link href={ROUTES.tutor(tutor.id)} className="shrink-0 group/avatar">
+            <div className="w-24 h-24 rounded-full border-2 border-surface-container overflow-hidden relative group-hover/avatar:border-secondary transition-colors">
               <Image src={tutor.image} alt={tutor.name} fill className="object-cover" />
             </div>
             <div className="mt-3 flex justify-center">
@@ -39,10 +39,12 @@ export function TutorCard({ tutor, showInvite = false }: TutorCardProps) {
                 {tutor.verified ? "Verified" : "Reviewing"}
               </Badge>
             </div>
-          </div>
-          <div className="grow">
-            <div className="flex justify-between items-start">
-              <h3 className="text-headline-sm text-primary">{tutor.name}</h3>
+          </Link>
+          <div className="grow min-w-0">
+            <div className="flex justify-between items-start gap-2">
+              <Link href={ROUTES.tutor(tutor.id)} className="hover:underline min-w-0">
+                <h3 className="text-headline-sm text-primary truncate">{tutor.name}</h3>
+              </Link>
               <p className="text-label-md text-secondary">{tutor.rate}</p>
             </div>
             <p className="text-body-sm text-on-surface mt-1">{tutor.title}</p>

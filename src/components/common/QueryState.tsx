@@ -19,6 +19,10 @@ function getErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
     if (error.status === 403) return "You do not have permission to view this resource.";
     if (error.status === 404) return "The requested resource could not be found.";
+    if (error.status === 503 || error.code === "DB_UNAVAILABLE") {
+      return "Database is waking up. Please wait a few seconds and try again.";
+    }
+    if (error.status >= 500) return "Server error. Please try again in a moment.";
     return error.message;
   }
   if (error instanceof Error) return error.message;

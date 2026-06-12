@@ -14,12 +14,18 @@ import { useRouter } from "next/navigation";
 import { authApi, type LoginRequest, type RegisterRequest, type User } from "@/lib/api";
 import { ApiError } from "@/lib/api/errors";
 import { ROUTES } from "@/lib/constants";
+import { AUTH_UNAUTHORIZED_EVENT } from "./session";
 import { clearToken, getToken, setToken } from "./token";
+
+type LoginOptions = {
+  remember?: boolean;
+  redirectTo?: string;
+};
 
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
-  login: (input: LoginRequest) => Promise<void>;
+  login: (input: LoginRequest, options?: LoginOptions) => Promise<void>;
   register: (input: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -53,13 +59,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser().finally(() => setLoading(false));
   }, [refreshUser]);
 
+  useEffect(() => {
+    function onUnauthorized() {
+      setUser(null);
+      queryClient.clear();
+      const path = typeof window !== "undefined" ? window.location.pathname : "";
+      if (path !== ROUTES.login && path !== ROUTES.register) {
+        router.push(`${ROUTES.login}?session=expired`);
+      }
+    }
+
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, onUnauthorized);
+  }, [router, queryClient]);
+
   const login = useCallback(
-    async (input: LoginRequest) => {
+    async (input: LoginRequest, options: LoginOptions = {}) => {
       const result = await authApi.login(input);
-      setToken(result.token);
+      setToken(result.token, { remember: options.remember ?? true });
       const me = await authApi.getMe();
       setUser(me);
-      router.push(ROUTES.dashboard);
+      router.push(options.redirectTo ?? ROUTES.dashboard);
     },
     [router],
   );
@@ -67,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (input: RegisterRequest) => {
       const result = await authApi.register(input);
-      setToken(result.token);
+      setToken(result.token, { remember: true });
       const me = await authApi.getMe();
       setUser(me);
       router.push(input.role === "TUTOR" ? ROUTES.profile : ROUTES.dashboard);
@@ -108,7 +128,16 @@ export function useAuth() {
 
 export function getAuthErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === "INVALID_CREDENTIALS") {
+      return "Invalid email or password for the selected role.";
+    }
+    if (error.code === "EMAIL_TAKEN") {
+      return "An account with this email already exists.";
+    }
     return error.message;
+  }
+  if (error instanceof TypeError && error.message.includes("fetch")) {
+    return "Cannot reach the API. Make sure the backend is running.";
   }
   if (error instanceof Error) {
     return error.message;

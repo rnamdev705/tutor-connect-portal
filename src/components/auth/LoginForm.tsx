@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -15,13 +16,29 @@ import {
   TextLink,
 } from "@/components/ui";
 import { getAuthErrorMessage, useAuth } from "@/lib/auth/AuthProvider";
+import type { Role } from "@/lib/api/types";
 import { BRAND_NAME, ROLE_OPTIONS, ROUTES, type AuthRole } from "@/lib/constants";
 import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { AuthBrandingSidebar } from "./AuthBrandingSidebar";
 
+function toApiRole(role: AuthRole): Role {
+  return role === "parent" ? "PARENT" : "TUTOR";
+}
+
+function safeRedirect(path: string | null): string | undefined {
+  if (!path || !path.startsWith("/") || path.startsWith("//")) return undefined;
+  if (path === ROUTES.login || path === ROUTES.register) return undefined;
+  return path;
+}
+
 export function LoginForm() {
   const { login } = useAuth();
+  const searchParams = useSearchParams();
   const [role, setRole] = useState<AuthRole>("parent");
+  const [remember, setRemember] = useState(true);
+
+  const sessionExpired = searchParams.get("session") === "expired";
+  const nextPath = safeRedirect(searchParams.get("next"));
 
   const {
     register,
@@ -34,10 +51,14 @@ export function LoginForm() {
 
   const loginMutation = useMutation({
     mutationFn: (values: LoginFormValues) =>
-      login({
-        email: values.email.trim().toLowerCase(),
-        password: values.password,
-      }),
+      login(
+        {
+          email: values.email.trim().toLowerCase(),
+          password: values.password,
+          role: toApiRole(role),
+        },
+        { remember, redirectTo: nextPath },
+      ),
   });
 
   return (
@@ -53,7 +74,7 @@ export function LoginForm() {
             <div className="mb-8">
               <h2 className="text-headline-lg text-on-surface mb-1">Welcome back</h2>
               <p className="text-body-md text-on-surface-variant">
-                Please enter your details to sign in.
+                Sign in with the email and password you used when registering.
               </p>
             </div>
             <SegmentedControl
@@ -69,6 +90,11 @@ export function LoginForm() {
               onSubmit={handleSubmit((values) => loginMutation.mutate(values))}
               noValidate
             >
+              {sessionExpired && (
+                <p className="text-body-sm text-on-surface-variant bg-surface-container-low px-4 py-3 rounded-lg" role="status">
+                  Your session expired. Please sign in again.
+                </p>
+              )}
               {loginMutation.isError && (
                 <p className="text-body-sm text-error bg-error-container px-4 py-3 rounded-lg" role="alert">
                   {getAuthErrorMessage(loginMutation.error)}
@@ -91,9 +117,6 @@ export function LoginForm() {
                 labelUppercase
                 labelSize="sm"
                 error={errors.password?.message}
-                action={
-                  <span className="text-label-sm text-secondary">Forgot password?</span>
-                }
               >
                 <PasswordInput
                   id="password"
@@ -104,7 +127,13 @@ export function LoginForm() {
                   {...register("password")}
                 />
               </Field>
-              <Checkbox id="remember" name="remember" label="Remember me for 30 days" />
+              <Checkbox
+                id="remember"
+                name="remember"
+                label="Remember me for 30 days"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
               <Button
                 type="submit"
                 variant="secondary"

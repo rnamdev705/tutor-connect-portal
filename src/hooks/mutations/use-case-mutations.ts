@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { casesApi, documentsApi } from "@/lib/api";
-import type { CreateCaseRequest, InviteTutorRequest } from "@/lib/api/types";
+import type { CreateCaseRequest, InviteTutorRequest, UpdateCaseRequest } from "@/lib/api/types";
 import { queryKeys } from "@/lib/query/keys";
 
 export function useCreateCase() {
@@ -12,6 +12,22 @@ export function useCreateCase() {
     mutationFn: (input: CreateCaseRequest) => casesApi.createCase(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.cases.all });
+    },
+  });
+}
+
+export function useUpdateCase(caseId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateCaseRequest }) =>
+      casesApi.updateCase(id, input),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.cases.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.cases.detail(variables.id) });
+      if (caseId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.cases.detail(caseId) });
+      }
     },
   });
 }

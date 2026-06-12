@@ -1,4 +1,5 @@
-import { getToken } from "@/lib/auth/token";
+import { notifyUnauthorized } from "@/lib/auth/session";
+import { clearToken, getToken } from "@/lib/auth/token";
 import { ApiError } from "./errors";
 
 const API_BASE =
@@ -22,6 +23,11 @@ function buildUrl(path: string, query?: Record<string, string | number | undefin
   }
 
   return url.toString();
+}
+
+function handleUnauthorized() {
+  clearToken();
+  notifyUnauthorized();
 }
 
 export async function apiRequest<T>(
@@ -57,7 +63,13 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    throw await ApiError.fromResponse(response);
+    const apiError = await ApiError.fromResponse(response);
+
+    if (auth && (apiError.status === 401 || apiError.code === "INVALID_TOKEN" || apiError.code === "TOKEN_EXPIRED")) {
+      handleUnauthorized();
+    }
+
+    throw apiError;
   }
 
   return response.json() as Promise<T>;
@@ -80,7 +92,13 @@ export async function apiRequestBlob(
   });
 
   if (!response.ok) {
-    throw await ApiError.fromResponse(response);
+    const apiError = await ApiError.fromResponse(response);
+
+    if (apiError.status === 401 || apiError.code === "INVALID_TOKEN" || apiError.code === "TOKEN_EXPIRED") {
+      handleUnauthorized();
+    }
+
+    throw apiError;
   }
 
   return response.blob();

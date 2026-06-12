@@ -1,11 +1,11 @@
-import { TutorProfileEditView } from "@/components/profile/TutorProfileEditView";
+import { ProfilePageView } from "@/components/profile/ProfilePageView";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata(
   "My Profile",
-  "Manage your tutor profile and supporting documents",
+  "View your account and manage your profile",
 );
 
 export default function ProfilePage() {
-  return <TutorProfileEditView />;
+  return <ProfilePageView />;
 }

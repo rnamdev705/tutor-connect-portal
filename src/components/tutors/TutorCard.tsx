@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Icon } from "@/components/ui/Icon";
+import { Badge, Button, Card, Icon, Tag, buttonClassName } from "@/components/ui";
 import type { Tutor } from "@/lib/data";
 
 export function TutorCard({ tutor }: { tutor: Tutor }) {
   const [invited, setInvited] = useState(false);
 
   return (
-    <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 card-shadow transition-all group relative overflow-hidden">
+    <Card className="group relative overflow-hidden" padding="md">
       <div className="absolute top-0 left-0 w-1.5 h-full bg-secondary" />
       <div className="flex gap-6">
         <div className="shrink-0">
@@ -18,17 +18,14 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
             <Image src={tutor.image} alt={tutor.name} fill className="object-cover" />
           </div>
           <div className="mt-3 flex justify-center">
-            {tutor.verified ? (
-              <span className="bg-tertiary-fixed text-on-tertiary-fixed text-label-sm px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                <Icon name="verified" size={14} filled />
-                Verified
-              </span>
-            ) : (
-              <span className="bg-outline-variant text-on-surface-variant text-label-sm px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                <Icon name="pending" size={14} />
-                Reviewing
-              </span>
-            )}
+            <Badge
+              variant={tutor.verified ? "verified" : "reviewing"}
+              icon={tutor.verified ? "verified" : "pending"}
+              filledIcon={tutor.verified}
+              className="font-bold"
+            >
+              {tutor.verified ? "Verified" : "Reviewing"}
+            </Badge>
           </div>
         </div>
         <div className="grow">
@@ -51,12 +48,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           </div>
           <div className="mt-6 flex flex-wrap gap-1">
             {tutor.subjects.map((s) => (
-              <span
-                key={s}
-                className="bg-surface-container-low px-3 py-1 rounded text-label-sm text-on-surface-variant"
-              >
-                {s}
-              </span>
+              <Tag key={s}>{s}</Tag>
             ))}
           </div>
         </div>
@@ -64,23 +56,19 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
       <div className="mt-10 flex gap-3 border-t border-outline-variant pt-6">
         <Link
           href={`/tutors/${tutor.id}`}
-          className="grow bg-primary text-on-primary text-label-md py-3 rounded uppercase hover:opacity-90 transition-opacity text-center"
+          className={buttonClassName({ variant: "primary", uppercase: true, className: "grow" })}
         >
           View Profile
         </Link>
-        <button
-          type="button"
+        <Button
+          variant={invited ? "success" : "outline"}
+          uppercase
           onClick={() => setInvited(true)}
-          className={`px-6 border text-label-md rounded uppercase transition-colors flex items-center gap-1 ${
-            invited
-              ? "bg-tertiary-fixed text-on-tertiary-fixed border-tertiary-fixed"
-              : "border-secondary text-secondary hover:bg-secondary-container hover:text-on-secondary-container"
-          }`}
         >
           <Icon name={invited ? "check" : "send"} size={20} />
           {invited ? "Sent" : "Invite"}
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

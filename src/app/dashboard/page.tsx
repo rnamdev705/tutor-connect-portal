@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PortalSidebar } from "@/components/layout/PortalSidebar";
-import { Icon } from "@/components/ui/Icon";
+import { Badge, Button, Card, Icon, Input, Select } from "@/components/ui";
 import { cases } from "@/lib/data";
 
 const stats = [
@@ -9,11 +9,11 @@ const stats = [
   { icon: "verified_user", value: "02", label: "Pending Documents" },
 ];
 
-const statusStyles: Record<string, string> = {
-  Open: "bg-surface-container text-on-surface-variant",
-  Matched: "bg-tertiary-fixed text-on-tertiary-fixed-variant",
-  Closed: "bg-surface-container-high text-on-surface-variant",
-};
+const statusVariant = {
+  Open: "open",
+  Matched: "matched",
+  Closed: "closed",
+} as const;
 
 export default function DashboardPage() {
   return (
@@ -28,19 +28,13 @@ export default function DashboardPage() {
                 Manage your tuition requests and track tutor responses.
               </p>
             </div>
-            <button
-              type="button"
-              className="md:hidden w-full py-3 px-6 bg-secondary text-on-secondary text-label-md rounded-full"
-            >
+            <Button shape="pill" className="md:hidden w-full">
               Post a Case
-            </button>
+            </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="glass-card p-10 rounded-xl flex flex-col justify-between shadow-sm"
-              >
+              <Card key={stat.label} variant="glass" padding="lg">
                 <div className="flex items-center justify-between mb-3">
                   <Icon name={stat.icon} className="text-secondary" />
                   <span className="text-secondary font-bold text-headline-sm">{stat.value}</span>
@@ -48,123 +42,106 @@ export default function DashboardPage() {
                 <p className="text-label-md text-on-surface-variant uppercase tracking-wider">
                   {stat.label}
                 </p>
-              </div>
+              </Card>
             ))}
           </div>
         </header>
         <section className="mb-10">
-          <div className="glass-card p-3 rounded-xl flex flex-col lg:flex-row items-center gap-2">
+          <Card variant="glass" padding="sm" className="flex flex-col lg:flex-row items-center gap-2">
             <div className="relative w-full lg:flex-1">
               <Icon
                 name="search"
                 className="absolute left-6 top-1/2 -translate-y-1/2 text-outline"
               />
-              <input
-                className="w-full pl-16 pr-6 py-3 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-secondary/20 text-body-sm outline-none"
+              <Input
+                className="[&_input]:pl-16 [&_input]:border-none [&_input]:bg-surface-container-low [&_input]:rounded-lg [&_input]:h-10"
                 placeholder="Search by case title..."
                 type="text"
               />
             </div>
             <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
               {["Subject: All", "Level: All", "Status: All"].map((opt) => (
-                <select
+                <Select
                   key={opt}
-                  className="bg-surface-container-low border-none rounded-lg text-label-sm px-6 py-3 focus:ring-2 focus:ring-secondary/20"
+                  className="border-none bg-surface-container-low rounded-lg h-10"
                 >
                   <option>{opt}</option>
-                </select>
+                </Select>
               ))}
             </div>
-          </div>
+          </Card>
         </section>
         <section className="space-y-6 mb-16">
           {cases.map((c) => (
             <Link
               key={c.id}
               href={`/cases/${c.id}`}
-              className={`glass-card hover:border-secondary transition-colors group overflow-hidden flex flex-col md:flex-row rounded-xl shadow-sm ${
-                c.closed ? "opacity-70" : ""
-              }`}
+              className={c.closed ? "opacity-70 block" : "block"}
             >
-              <div className={`w-2 ${c.accent} group-hover:bg-secondary`} />
-              <div className="flex-1 p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span
-                      className={`px-3 py-1 text-label-sm rounded-full ${statusStyles[c.status]}`}
-                    >
-                      {c.status}
-                    </span>
-                    <span className="text-label-sm text-outline">ID: {c.caseId}</span>
+              <Card
+                variant="glass"
+                accent={`${c.accent} group-hover:bg-secondary`}
+                padding="lg"
+                className="hover:border-secondary transition-colors group"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3 mb-1">
+                      <Badge variant={statusVariant[c.status]}>{c.status}</Badge>
+                      <span className="text-label-sm text-outline">ID: {c.caseId}</span>
+                    </div>
+                    <h3 className="text-headline-sm text-on-surface">{c.title}</h3>
+                    <div className="flex flex-wrap items-center gap-6 text-on-surface-variant">
+                      <div className="flex items-center gap-1">
+                        <Icon name="school" size={18} />
+                        <span className="text-body-sm">{c.level}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon name="book" size={18} />
+                        <span className="text-body-sm">{c.subject}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon name="location_on" size={18} />
+                        <span className="text-body-sm">{c.location}</span>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-headline-sm text-on-surface">{c.title}</h3>
-                  <div className="flex flex-wrap items-center gap-6 text-on-surface-variant">
-                    <div className="flex items-center gap-1">
-                      <Icon name="school" size={18} />
-                      <span className="text-body-sm">{c.level}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Icon name="book" size={18} />
-                      <span className="text-body-sm">{c.subject}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Icon name="location_on" size={18} />
-                      <span className="text-body-sm">{c.location}</span>
-                    </div>
+                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1">
+                    <p className="text-headline-sm text-primary">{c.rate}</p>
+                    {!c.closed ? (
+                      <Button variant="ghost" size="icon" shape="pill">
+                        <Icon name="more_vert" />
+                      </Button>
+                    ) : (
+                      <span className="p-3 text-outline rounded-full">
+                        <Icon name="lock" />
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-1">
-                  <p className="text-headline-sm text-primary">{c.rate}</p>
-                  {!c.closed && (
-                    <button
-                      type="button"
-                      className="p-3 text-secondary hover:bg-secondary/10 rounded-full transition-colors"
-                    >
-                      <Icon name="more_vert" />
-                    </button>
-                  )}
-                  {c.closed && (
-                    <span className="p-3 text-outline rounded-full">
-                      <Icon name="lock" />
-                    </span>
-                  )}
-                </div>
-              </div>
+              </Card>
             </Link>
           ))}
         </section>
         <nav className="flex items-center justify-between py-6">
-          <button
-            type="button"
-            className="flex items-center gap-1 text-on-surface-variant hover:text-secondary text-label-md transition-colors"
-          >
+          <Button variant="ghost" className="text-label-md">
             <Icon name="arrow_back" />
             Previous
-          </button>
+          </Button>
           <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="w-10 h-10 rounded-full bg-secondary text-on-secondary text-label-md"
-            >
+            <Button shape="pill" size="icon" className="bg-secondary text-on-secondary">
               1
-            </button>
+            </Button>
             {[2, 3].map((n) => (
-              <button
-                key={n}
-                type="button"
-                className="w-10 h-10 rounded-full hover:bg-surface-variant text-on-surface-variant text-label-md"
-              >
+              <Button key={n} variant="ghost" shape="pill" size="icon">
                 {n}
-              </button>
+              </Button>
             ))}
           </div>
-          <button
-            type="button"
-            className="flex items-center gap-1 text-on-surface-variant hover:text-secondary text-label-md transition-colors"
-          >
+          <Button variant="ghost" className="text-label-md">
             Next
             <Icon name="arrow_forward" />
-          </button>
+          </Button>
         </nav>
       </main>
     </div>

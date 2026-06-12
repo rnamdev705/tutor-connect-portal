@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortalHeader } from "@/components/layout/PortalHeader";
-import { Icon } from "@/components/ui/Icon";
+import { Badge, Button, Card, Icon, Tag } from "@/components/ui";
 import { getTutor } from "@/lib/data";
 
 type Props = { params: Promise<{ id: string }> };
@@ -23,7 +23,7 @@ export default async function TutorProfilePage({ params }: Props) {
     <div className="bg-background text-on-surface min-h-screen">
       <PortalHeader active="tutors" />
       <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="bg-surface-container-lowest profile-card rounded-xl p-10 mb-10 flex flex-col md:flex-row items-start md:items-center gap-10 relative overflow-hidden">
+        <Card variant="profile" padding="lg" className="mb-10 flex flex-col md:flex-row items-start md:items-center gap-10 relative overflow-hidden">
           <div className="relative">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-surface shadow-sm relative">
               <Image src={tutor.image} alt={tutor.name} fill className="object-cover" />
@@ -40,11 +40,7 @@ export default async function TutorProfilePage({ params }: Props) {
           <div className="flex-1 space-y-2">
             <div className="flex flex-col md:flex-row md:items-center gap-3">
               <h1 className="text-headline-lg text-on-surface">{tutor.name}</h1>
-              {tutor.degree && (
-                <span className="inline-flex items-center px-3 py-1 bg-primary-container text-on-primary-container text-label-sm rounded-full">
-                  {tutor.degree}
-                </span>
-              )}
+              {tutor.degree && <Badge variant="parent">{tutor.degree}</Badge>}
             </div>
             <p className="text-body-lg text-on-surface-variant max-w-2xl">
               {tutor.bio ??
@@ -70,22 +66,16 @@ export default async function TutorProfilePage({ params }: Props) {
             </div>
           </div>
           <div className="flex flex-col gap-3 w-full md:w-auto">
-            <button
-              type="button"
-              className="bg-secondary text-white text-label-md py-6 px-10 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-3 shadow-md"
-            >
+            <Button variant="secondary" uppercase className="py-6 px-10 shadow-md">
               <Icon name="send" />
               INVITE TO CASE
-            </button>
-            <button
-              type="button"
-              className="bg-white border border-outline text-on-surface-variant text-label-md py-6 px-10 rounded-lg hover:bg-surface-variant transition-colors flex items-center justify-center gap-3"
-            >
+            </Button>
+            <Button variant="outline-neutral" uppercase className="py-6 px-10 bg-white">
               <Icon name="mail" />
               MESSAGE
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
         <div className="flex border-b border-outline-variant mb-10 overflow-x-auto whitespace-nowrap">
           {tabs.map((tab, i) => (
             <button
@@ -103,7 +93,7 @@ export default async function TutorProfilePage({ params }: Props) {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-10">
-            <section className="bg-surface-container-lowest profile-card rounded-xl p-10">
+            <Card variant="profile" padding="lg">
               <h2 className="text-headline-sm text-on-surface mb-6">Professional Summary</h2>
               <div className="text-body-md text-on-surface-variant space-y-6">
                 <p>
@@ -120,32 +110,26 @@ export default async function TutorProfilePage({ params }: Props) {
                   <h3 className="text-label-md text-primary mb-1">Primary Subjects</h3>
                   <div className="flex flex-wrap gap-1">
                     {tutor.subjects.map((s) => (
-                      <span
-                        key={s}
-                        className="px-2 py-1 bg-white border border-outline-variant rounded text-label-sm"
-                      >
+                      <Tag key={s} className="bg-white border border-outline-variant">
                         {s}
-                      </span>
+                      </Tag>
                     ))}
                   </div>
                 </div>
                 <div className="p-6 bg-surface-container-low rounded-xl border border-outline-variant">
                   <h3 className="text-label-md text-primary mb-1">Languages</h3>
                   <div className="flex flex-wrap gap-1">
-                    <span className="px-2 py-1 bg-white border border-outline-variant rounded text-label-sm">
-                      English (Native)
-                    </span>
+                    <Tag className="bg-white border border-outline-variant">English (Native)</Tag>
                   </div>
                 </div>
               </div>
-            </section>
-            <section className="bg-surface-container-lowest profile-card rounded-xl p-10">
+            </Card>
+            <Card variant="profile" padding="lg">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-headline-sm text-on-surface">Verified Credentials</h2>
-                <span className="text-on-tertiary-container bg-tertiary-fixed px-3 py-1 rounded-full text-label-sm flex items-center gap-1">
-                  <Icon name="lock" size={14} filled />
+                <Badge variant="verified" icon="lock" filledIcon>
                   Encrypted &amp; Secure
-                </span>
+                </Badge>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {credentials.map((doc) => (
@@ -164,10 +148,10 @@ export default async function TutorProfilePage({ params }: Props) {
                   </div>
                 ))}
               </div>
-            </section>
+            </Card>
           </div>
           <div className="space-y-10">
-            <div className="bg-primary-container text-white rounded-xl p-10 shadow-lg">
+            <Card className="bg-primary-container text-white shadow-lg" padding="lg">
               <h3 className="text-label-md text-on-primary-container mb-6 uppercase tracking-wider">
                 Quick Details
               </h3>
@@ -187,7 +171,7 @@ export default async function TutorProfilePage({ params }: Props) {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
             <Link
               href="/tutors"
               className="block text-center text-secondary text-label-md hover:underline"

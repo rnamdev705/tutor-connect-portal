@@ -1,6 +1,6 @@
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { TutorCard } from "@/components/tutors/TutorCard";
-import { Icon } from "@/components/ui/Icon";
+import { Button, Card, Field, Icon, Input, Select } from "@/components/ui";
 import { tutors } from "@/lib/data";
 
 export default function TutorsPage() {
@@ -9,35 +9,26 @@ export default function TutorsPage() {
       <PortalHeader active="tutors" />
       <main className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-10">
         <aside className="w-full md:w-72 shrink-0">
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 sticky top-16 shadow-sm">
+          <Card className="sticky top-16 shadow-sm" padding="md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-headline-sm text-primary">Filters</h2>
-              <button type="button" className="text-secondary text-label-sm hover:underline">
+              <Button variant="ghost" className="text-secondary text-label-sm h-auto px-0 hover:bg-transparent hover:underline">
                 Reset All
-              </button>
+              </Button>
             </div>
             <div className="space-y-10">
-              <div>
-                <label className="block text-label-md text-on-surface-variant mb-1">Keyword</label>
-                <input
-                  className="w-full border border-outline-variant rounded-lg px-3 py-1 focus:ring-secondary focus:border-secondary text-body-sm outline-none"
-                  placeholder="e.g. Calculus"
-                  type="text"
-                />
-              </div>
-              <div>
-                <label className="block text-label-md text-on-surface-variant mb-1">Subject</label>
-                <select className="w-full border border-outline-variant rounded-lg px-3 py-1 text-body-sm bg-surface-container-lowest">
+              <Field label="Keyword" htmlFor="keyword">
+                <Input id="keyword" placeholder="e.g. Calculus" className="[&_input]:h-9 [&_input]:text-body-sm" />
+              </Field>
+              <Field label="Subject" htmlFor="subject">
+                <Select id="subject" className="h-9 text-body-sm">
                   <option>All Subjects</option>
                   <option>Mathematics</option>
                   <option>Physics</option>
                   <option>Chemistry</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-label-md text-on-surface-variant mb-1">
-                  Academic Level
-                </label>
+                </Select>
+              </Field>
+              <Field label="Academic Level">
                 <div className="space-y-2">
                   {["Primary", "Secondary", "Tertiary / University"].map((level, i) => (
                     <label key={level} className="flex items-center gap-1 cursor-pointer">
@@ -50,20 +41,17 @@ export default function TutorsPage() {
                     </label>
                   ))}
                 </div>
-              </div>
-              <div>
-                <label className="block text-label-md text-on-surface-variant mb-1">Location</label>
-                <div className="flex items-center bg-surface-container-low px-3 py-1 rounded-lg border border-outline-variant">
-                  <Icon name="location_on" className="text-outline mr-1" size={20} />
-                  <input
-                    className="bg-transparent border-none focus:ring-0 text-body-sm p-0 w-full outline-none"
-                    placeholder="Postal Code or City"
-                    type="text"
-                  />
-                </div>
-              </div>
+              </Field>
+              <Field label="Location" htmlFor="location">
+                <Input
+                  id="location"
+                  leftIcon="location_on"
+                  placeholder="Postal Code or City"
+                  className="[&_input]:h-9 [&_input]:text-body-sm [&_input]:bg-surface-container-low"
+                />
+              </Field>
             </div>
-          </div>
+          </Card>
         </aside>
         <section className="grow">
           <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-6">
@@ -75,10 +63,10 @@ export default function TutorsPage() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-label-md text-on-surface-variant">Sort by:</span>
-              <select className="border-none bg-transparent text-label-md text-secondary focus:ring-0 cursor-pointer">
+              <Select className="w-auto border-none bg-transparent text-label-md text-secondary h-auto py-0">
                 <option>Most Experienced</option>
                 <option>Highest Rating</option>
-              </select>
+              </Select>
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import "@fontsource-variable/material-symbols-outlined/index.css";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { BRAND_NAME } from "@/lib/constants";
 import "./globals.css";

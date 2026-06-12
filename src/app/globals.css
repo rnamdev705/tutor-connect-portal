@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap");
+/* Material Symbols: bundled via @fontsource in layout.tsx (do not use CSS @import — breaks under Tailwind v4 / Turbopack). */
 @import "tailwindcss";
 
 @theme inline {
@@ -98,14 +98,19 @@ body {
 }
 
 .material-symbols-outlined {
-  font-family: "Material Symbols Outlined";
+  font-family: "Material Symbols Outlined Variable", "Material Symbols Outlined", sans-serif;
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;
+  font-size: 1.25rem;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
@@ -113,6 +118,7 @@ body {
   -webkit-font-smoothing: antialiased;
   vertical-align: middle;
   user-select: none;
+  flex-shrink: 0;
 }
 
 /* Uppercase parents must not transform icon ligature names (e.g. arrow_forward). */

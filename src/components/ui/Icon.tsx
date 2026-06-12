@@ -1,5 +1,9 @@
 import { cn } from "@/lib/cn";
 
+/** Self-hosted via @fontsource-variable/material-symbols-outlined (see layout.tsx). */
+const ICON_FONT =
+  '"Material Symbols Outlined Variable", "Material Symbols Outlined", sans-serif';
+
 /** Material Symbols Outlined — use lowercase names with underscores (e.g. arrow_forward). */
 type IconProps = {
   name: string;
@@ -19,14 +23,18 @@ export function Icon({
   decorative = true,
   label,
 }: IconProps) {
-  const style = filled
-    ? { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }
-    : undefined;
+  const style = {
+    fontFamily: ICON_FONT,
+    fontSize: size ? `${size}px` : undefined,
+    fontVariationSettings: filled
+      ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+      : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+  };
 
   return (
     <span
       className={cn("material-symbols-outlined normal-case", className)}
-      style={{ ...style, fontSize: size ? `${size}px` : undefined }}
+      style={style}
       aria-hidden={decorative ? true : undefined}
       aria-label={decorative ? undefined : label}
       role={decorative ? undefined : "img"}
